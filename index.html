@@ -1,316 +1,269 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CHOKXEN® | Seguridad, automatizacion y tecnologia</title>
-    <meta
-      name="description"
-      content="CHOKXEN® - Seguridad, automatizacion y tecnologia con enfoque cosmico. Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente."
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHOKXEN® | Seguridad, automatizacion y tecnologia</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Fondo vivo -->
+  <div class="bg">
+    <div class="bg-nebula" aria-hidden="true"></div>
+    <canvas id="space" aria-hidden="true"></canvas>
 
-  <body>
-    <!-- Fondo nebula + canvas animado -->
-    <div class="bg">
-      <div class="bg-nebula" aria-hidden="true"></div>
-      <canvas id="starsCanvas" aria-hidden="true"></canvas>
-
-      <!-- Cometas (JS) -->
-      <div id="cometsLayer" aria-hidden="true"></div>
-
-      <!-- Planetas (texturas reales) -->
-      <div class="planet earth" aria-hidden="true"></div>
-      <div class="planet moon" aria-hidden="true"></div>
-
-      <!-- Satelite (SVG) -->
-      <div class="satellite-orbit" aria-hidden="true">
-        <div class="satellite">
-          <svg viewBox="0 0 520 260" role="img" aria-label="Satelite">
-            <!-- panel izq -->
-            <g opacity="0.95">
-              <rect x="10" y="72" width="170" height="116" rx="10" class="sat-panel" />
-              <g class="sat-grid">
-                <path d="M30 92 H160 M30 112 H160 M30 132 H160 M30 152 H160 M30 172 H160" />
-                <path d="M50 82 V198 M70 82 V198 M90 82 V198 M110 82 V198 M130 82 V198 M150 82 V198" />
-              </g>
-            </g>
-
-            <!-- cuerpo -->
-            <g>
-              <rect x="190" y="78" width="140" height="104" rx="16" class="sat-body" />
-              <rect x="205" y="95" width="110" height="18" rx="8" class="sat-detail" />
-              <rect x="205" y="122" width="92" height="14" rx="7" class="sat-detail2" />
-              <circle cx="320" cy="130" r="22" class="sat-dish" />
-              <circle cx="320" cy="130" r="12" class="sat-dish-inner" />
-              <path d="M295 135 Q320 110 345 135" class="sat-dish-lines" />
-            </g>
-
-            <!-- panel der -->
-            <g opacity="0.95">
-              <rect x="340" y="72" width="170" height="116" rx="10" class="sat-panel" />
-              <g class="sat-grid">
-                <path d="M360 92 H490 M360 112 H490 M360 132 H490 M360 152 H490 M360 172 H490" />
-                <path d="M380 82 V198 M400 82 V198 M420 82 V198 M440 82 V198 M460 82 V198 M480 82 V198" />
-              </g>
-            </g>
-
-            <!-- foquito rojo (trabajando) -->
-            <circle cx="230" cy="150" r="7" class="sat-led" />
-          </svg>
-        </div>
-      </div>
+    <!-- Planetas con textura -->
+    <div class="planet earth" aria-hidden="true">
+      <div class="planet-shade"></div>
+      <div class="planet-atmo"></div>
     </div>
 
-    <!-- Header -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-dot"></div>
-        <div class="brand-name">CHOKXEN<span class="reg">®</span></div>
-      </div>
+    <div class="planet moon" aria-hidden="true">
+      <div class="planet-shade"></div>
+    </div>
 
-      <button id="menuBtn" class="hamburger" aria-label="Abrir menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-    </header>
+    <!-- Satelite como IMAGEN -->
+    <div class="satellite" aria-hidden="true">
+      <img src="assets/satellite.png" alt="" draggable="false" />
+    </div>
+  </div>
 
-    <!-- Drawer menu -->
-    <aside id="drawer" class="drawer" aria-hidden="true">
-      <div class="drawer-header">
-        <div class="drawer-title">Menu</div>
-        <button id="closeBtn" class="drawer-close" aria-label="Cerrar menu">✕</button>
-      </div>
+  <!-- Header con menu -->
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Ir al inicio">
+      <span class="brand-dot"></span>
+      <span class="brand-name">CHOKXEN®</span>
+    </a>
 
-      <nav class="drawer-nav">
-        <a href="#soluciones">Soluciones</a>
-        <a href="#proceso">Proceso</a>
-        <a href="#casos">Casos</a>
-        <a href="#certificaciones">Certificaciones</a>
-        <a href="#contacto">Contactar</a>
-      </nav>
+    <button class="hamburger" id="btnMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
 
-      <div class="drawer-social">
-        <a target="_blank" rel="noopener" href="https://facebook.com/Chokxengroup">Facebook</a>
-        <a target="_blank" rel="noopener" href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr">Instagram</a>
-        <a target="_blank" rel="noopener" href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y">TikTok</a>
-      </div>
-    </aside>
+  <!-- Drawer -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="drawer-title">Menu</div>
+      <button class="drawer-close" id="btnClose" aria-label="Cerrar menu">✕</button>
+    </div>
+    <nav class="drawer-nav">
+      <a href="#soluciones">Soluciones</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#casos">Casos</a>
+      <a href="#certificaciones">Certificaciones</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="drawer-foot">
+      <div class="tiny">CHOKXEN SA de SV </div>
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop" aria-hidden="true"></div>
 
-    <div id="backdrop" class="backdrop" aria-hidden="true"></div>
-
-    <!-- Content -->
-    <main class="wrap">
-      <!-- HERO -->
-      <section class="hero card glass" id="inicio">
+  <!-- Contenido -->
+  <main class="wrap" id="inicio">
+    <section class="hero">
+      <div class="glass card-hero">
         <h1>CHOKXEN</h1>
-        <p class="subtitle">
+        <p class="lead">
           Seguridad, automatizacion y tecnologia con enfoque cosmico.
           Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente.
         </p>
 
         <div class="cta">
-          <a class="btn primary" target="_blank" rel="noopener"
-            href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20una%20cotizacion%20%F0%9F%9A%80">
+          <a class="btn primary" target="_blank"
+             href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20una%20cotizacion.">
             Hablar por WhatsApp
           </a>
-          <a class="btn ghost" href="#soluciones">Explorar soluciones</a>
+          <a class="btn" href="#soluciones">Explorar soluciones</a>
         </div>
 
-        <div class="chips glass2">
-          <span class="dot"></span> 24/7 listo para incidentes
-          <span class="sep">•</span> Enfoque: personas + tecnologia
-          <span class="sep">•</span> Automatizacion y cumplimiento
+        <div class="chips">
+          <div class="chip"><span class="dot ok"></span> 24/7 listo para incidentes</div>
+          <div class="chip">Enfoque: personas + tecnologia</div>
+          <div class="chip">Automatizacion y cumplimiento</div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- SOLUCIONES -->
-      <section class="section" id="soluciones">
-        <h2>Soluciones</h2>
-        <p class="section-desc">Paquetes listos para empresas chicas, medianas y grandes. (Aqui tu cambias textos y agregas imagenes.)</p>
+    <section class="section" id="soluciones">
+      <h2>Soluciones</h2>
+      <p class="muted">Paquetes listos para empresas chicas, medianas y grandes. (Tu aqui cambias textos y agregas imagenes.)</p>
 
-        <div class="grid">
-          <article class="card glass">
-            <h3>CHOKXEN Security</h3>
-            <ul>
-              <li>Hardening, monitoreo, respuesta a incidentes</li>
-              <li>SIEM, politicas y controles</li>
-              <li>Auditoria y diagnostico</li>
-              <li>Proteccion endpoints</li>
-              <li>Alertas y playbooks</li>
-            </ul>
-            <a class="link" href="#contacto">Cotizar</a>
-          </article>
+      <div class="grid">
+        <article class="glass card">
+          <h3>CHOKXEN Security</h3>
+          <ul>
+            <li>Hardening y monitoreo</li>
+            <li>Respuesta a incidentes</li>
+            <li>SIEM, politicas y controles</li>
+            <li>Alertas y playbooks</li>
+          </ul>
+          <a class="link" href="#contacto">Cotizar</a>
+        </article>
 
-          <article class="card glass">
-            <h3>Automatizacion</h3>
-            <ul>
-              <li>Procesos que se hacen solos: reportes, respaldos, flujos, alertas, integraciones</li>
-              <li>Scripts / flujos</li>
-              <li>Integraciones</li>
-              <li>Dashboards</li>
-            </ul>
-            <a class="link" href="#contacto">Cotizar</a>
-          </article>
+        <article class="glass card">
+          <h3>Automatizacion</h3>
+          <ul>
+            <li>Procesos que se hacen solos</li>
+            <li>Integraciones y flujos</li>
+            <li>Dashboards</li>
+            <li>Reportes y respaldos</li>
+          </ul>
+          <a class="link" href="#contacto">Cotizar</a>
+        </article>
 
-          <article class="card glass">
-            <h3>Infra & Redes</h3>
-            <ul>
-              <li>Diseno, mejora y seguridad de redes</li>
-              <li>WiFi, VLANs, firewall, VPN, segmentacion</li>
-              <li>Topologia y cableado</li>
-              <li>Optimizacion</li>
-            </ul>
-            <a class="link" href="#contacto">Cotizar</a>
-          </article>
+        <article class="glass card">
+          <h3>Infra & Redes</h3>
+          <ul>
+            <li>Diseno y seguridad de redes</li>
+            <li>WiFi, VLANs, segmentacion</li>
+            <li>Firewall / VPN</li>
+            <li>Optimizacion</li>
+          </ul>
+          <a class="link" href="#contacto">Cotizar</a>
+        </article>
 
-          <article class="card glass">
-            <h3>Cloud & Continuidad</h3>
-            <ul>
-              <li>Backups, DRP, alta disponibilidad, migraciones</li>
-              <li>Backups versionados</li>
-              <li>Plan de continuidad</li>
-              <li>Monitoreo</li>
-            </ul>
-            <a class="link" href="#contacto">Cotizar</a>
-          </article>
-        </div>
-      </section>
+        <article class="glass card">
+          <h3>Cloud & Continuidad</h3>
+          <ul>
+            <li>Backups versionados</li>
+            <li>Plan de continuidad (DRP)</li>
+            <li>Alta disponibilidad</li>
+            <li>Monitoreo</li>
+          </ul>
+          <a class="link" href="#contacto">Cotizar</a>
+        </article>
+      </div>
+    </section>
 
-      <!-- PROCESO -->
-      <section class="section" id="proceso">
-        <h2>Proceso</h2>
-        <p class="section-desc">Como trabajamos (paso a paso). Esto te da imagen de empresa seria.</p>
+    <section class="section" id="proceso">
+      <h2>Proceso</h2>
+      <p class="muted">Como trabajamos (paso a paso). Esto te da imagen de empresa seria.</p>
 
-        <div class="steps">
-          <div class="step glass">
-            <div class="num">01</div>
-            <div>
-              <h4>Exploracion</h4>
-              <p>Entendemos tu contexto, riesgos, objetivos y presupuesto.</p>
-            </div>
-          </div>
-
-          <div class="step glass">
-            <div class="num">02</div>
-            <div>
-              <h4>Diagnostico</h4>
-              <p>Inventario, vulnerabilidades, prioridades y plan de accion.</p>
-            </div>
-          </div>
-
-          <div class="step glass">
-            <div class="num">03</div>
-            <div>
-              <h4>Implementacion</h4>
-              <p>Controles, hardening, monitoreo y automatizaciones clave.</p>
-            </div>
-          </div>
-
-          <div class="step glass">
-            <div class="num">04</div>
-            <div>
-              <h4>Operacion</h4>
-              <p>Seguimiento, reportes, mejoras continuas y respuesta a incidentes.</p>
-            </div>
+      <div class="steps">
+        <div class="glass step">
+          <div class="num">01</div>
+          <div>
+            <h4>Exploracion</h4>
+            <p>Entendemos tu contexto, riesgos, objetivos y presupuesto.</p>
           </div>
         </div>
-      </section>
-
-      <!-- CASOS -->
-      <section class="section" id="casos">
-        <h2>Casos</h2>
-        <p class="section-desc">Aqui vas a poner tus casos reales (antes/despues, resultados, fotos, evidencia).</p>
-
-        <div class="grid">
-          <article class="card glass">
-            <h3>Caso #1</h3>
-            <p>Ejemplo: segmentacion VLAN + firewall + VPN para sucursales.</p>
-          </article>
-          <article class="card glass">
-            <h3>Caso #2</h3>
-            <p>Ejemplo: monitoreo + alertas + respuesta a incidentes 24/7.</p>
-          </article>
-          <article class="card glass">
-            <h3>Caso #3</h3>
-            <p>Ejemplo: backups versionados + DRP y pruebas de restauracion.</p>
-          </article>
-        </div>
-      </section>
-
-      <!-- CERTIFICACIONES -->
-      <section class="section" id="certificaciones">
-        <h2>Certificaciones</h2>
-        <p class="section-desc">Aqui metes tus badges (AWS, Cisco, Fortinet, IBM, etc.).</p>
-
-        <div class="badges card glass">
-          <div class="badge">AWS Educate</div>
-          <div class="badge">Cisco CCNA</div>
-          <div class="badge">Fortinet NSE</div>
-          <div class="badge">IBM SkillsBuild</div>
-          <div class="badge">Python Essentials</div>
-          <div class="badge">Cloud / DRP</div>
-        </div>
-      </section>
-
-      <!-- CONTACTO -->
-      <section class="section" id="contacto">
-        <h2>Contactar</h2>
-
-        <div class="contact card glass">
-          <div class="contact-grid">
-            <div>
-              <h3>Contacto directo</h3>
-              <p class="mono">Telefono / WhatsApp: <a class="link2" target="_blank" rel="noopener" href="https://wa.me/524402671402">+52 440 267 1402</a></p>
-              <p class="mono">Correo: <a class="link2" href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a></p>
-
-              <div class="social">
-                <a target="_blank" rel="noopener" href="https://facebook.com/Chokxengroup">Facebook</a>
-                <a target="_blank" rel="noopener" href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr">Instagram</a>
-                <a target="_blank" rel="noopener" href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y">TikTok</a>
-              </div>
-            </div>
-
-            <div class="contact-cta">
-              <a class="btn primary" target="_blank" rel="noopener"
-                href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20una%20cotizacion%20%F0%9F%9A%80">
-                Cotizar por WhatsApp
-              </a>
-              <a class="btn ghost" href="#soluciones">Ver soluciones</a>
-
-              <div class="mini-note glass2">
-                Tiempo de respuesta: <b>rapido</b><br />
-                Enfoque: <b>seguridad + automatizacion</b><br />
-                Objetivo: <b>empresa protegida y operando</b>
-              </div>
-            </div>
+        <div class="glass step">
+          <div class="num">02</div>
+          <div>
+            <h4>Diagnostico</h4>
+            <p>Mapa de riesgos + priorizacion + plan de accion.</p>
           </div>
         </div>
-      </section>
-
-      <!-- FOOTER -->
-      <footer class="footer">
-        <div class="footer-inner">
-          <div class="f-left">
-            <div class="f-brand">CHOKXEN<span class="reg">®</span></div>
-            <div class="f-legal">Nombre legal sugerido: <b>Chokxen SA de SV</b></div>
-          </div>
-
-          <div class="f-right">
-            <div class="f-title">Certificaciones (ejemplo)</div>
-            <div class="f-tags">
-              <span>Cloud</span><span>Networking</span><span>Cybersecurity</span><span>Automation</span>
-            </div>
+        <div class="glass step">
+          <div class="num">03</div>
+          <div>
+            <h4>Implementacion</h4>
+            <p>Controles, automatizaciones y monitoreo con entregables claros.</p>
           </div>
         </div>
-
-        <div class="footer-bottom">
-          © <span id="year"></span> CHOKXEN®. Todos los derechos reservados.
+        <div class="glass step">
+          <div class="num">04</div>
+          <div>
+            <h4>Mejora continua</h4>
+            <p>Optimizacion mensual: alertas, hardening, reportes y continuidad.</p>
+          </div>
         </div>
-      </footer>
-    </main>
+      </div>
+    </section>
 
-    <script src="stars.js"></script>
-    <script src="app.js"></script>
-  </body>
+    <section class="section" id="casos">
+      <h2>Casos</h2>
+      <p class="muted">Aqui pones logos/imagenes y resultados (antes/despues). Yo lo dejo listo.</p>
+
+      <div class="grid grid-3">
+        <article class="glass card">
+          <h3>Empresa A</h3>
+          <p class="muted">Reduccion de incidentes, mejora en visibilidad y control.</p>
+          <div class="placeholder">IMAGEN / LOGO</div>
+        </article>
+        <article class="glass card">
+          <h3>Empresa B</h3>
+          <p class="muted">Automatizacion de backups + monitoreo 24/7.</p>
+          <div class="placeholder">IMAGEN / LOGO</div>
+        </article>
+        <article class="glass card">
+          <h3>Empresa C</h3>
+          <p class="muted">Segmentacion VLAN + hardening + VPN.</p>
+          <div class="placeholder">IMAGEN / LOGO</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="certificaciones">
+      <h2>Certificaciones</h2>
+      <p class="muted">Pon tus badges (como los de Fortinet, Cisco, AWS, IBM). Aqui van en cards.</p>
+
+      <div class="grid grid-3">
+        <article class="glass card">
+          <h3>Cisco / CCNA</h3>
+          <div class="placeholder small">BADGE</div>
+        </article>
+        <article class="glass card">
+          <h3>Fortinet NSE</h3>
+          <div class="placeholder small">BADGE</div>
+        </article>
+        <article class="glass card">
+          <h3>AWS / IBM</h3>
+          <div class="placeholder small">BADGE</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="contacto">
+      <h2>Contacto</h2>
+      <p class="muted">Listo para que te marquen o te escriban. Aqui esta todo conectado.</p>
+
+      <div class="grid grid-2">
+        <article class="glass card">
+          <h3>WhatsApp / Llamadas</h3>
+          <p class="big">+52 440 267 1402</p>
+          <a class="btn primary" target="_blank"
+             href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20informacion%20y%20cotizacion.">
+            Abrir WhatsApp
+          </a>
+        </article>
+
+        <article class="glass card">
+          <h3>Correo</h3>
+          <p class="big">contacto.chokxen@gmail.com</p>
+          <a class="btn" href="mailto:contacto.chokxen@gmail.com?subject=Cotizacion%20CHOKXEN">
+            Enviar correo
+          </a>
+        </article>
+
+        <article class="glass card">
+          <h3>Redes</h3>
+          <div class="social">
+            <a target="_blank" href="https://www.instagram.com/chokxengroup">Instagram</a>
+            <a target="_blank" href="https://facebook.com/Chokxengroup">Facebook</a>
+            <a target="_blank" href="https://www.tiktok.com/@chokxen">TikTok</a>
+          </div>
+        </article>
+
+        <article class="glass card">
+          <h3>Nota legal</h3>
+          <p class="muted">Nombre legal propuesto: <b>CHOKXEN SA de SV</b>.</p>
+          <p class="muted">Marca registrada: <b>CHOKXEN®</b></p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer glass">
+      <div>
+        <b>CHOKXEN®</b> — Seguridad, automatizacion y tecnologia con enfoque cosmico.
+      </div>
+      <div class="tiny">
+        © <span id="year"></span> CHOKXEN SA de SV. Todos los derechos reservados.
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
 </html>
