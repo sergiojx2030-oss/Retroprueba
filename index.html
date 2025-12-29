@@ -1,389 +1,316 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CHOKXEN® | Seguridad, automatizacion y tecnologia</title>
-  <meta name="description" content="CHOKXEN: Seguridad, automatizacion y tecnologia con enfoque cosmico. Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CHOKXEN® | Seguridad, automatizacion y tecnologia</title>
+    <meta
+      name="description"
+      content="CHOKXEN® - Seguridad, automatizacion y tecnologia con enfoque cosmico. Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<body>
-  <!-- Fondo animado -->
-  <div class="cosmos" aria-hidden="true">
-    <div class="nebula"></div>
-    <canvas id="spaceCanvas"></canvas>
+  <body>
+    <!-- Fondo nebula + canvas animado -->
+    <div class="bg">
+      <div class="bg-nebula" aria-hidden="true"></div>
+      <canvas id="starsCanvas" aria-hidden="true"></canvas>
 
-    <!-- Planetas (Tierra + Luna) -->
-    <div class="planet earth" title="Tierra"></div>
-    <div class="planet moon" title="Luna"></div>
+      <!-- Cometas (JS) -->
+      <div id="cometsLayer" aria-hidden="true"></div>
 
-    <!-- Satelite -->
-    <div class="satellite" title="Satelite">
-      <span class="sat-body"></span>
-      <span class="sat-panel left"></span>
-      <span class="sat-panel right"></span>
-      <span class="sat-light" aria-hidden="true"></span>
+      <!-- Planetas (texturas reales) -->
+      <div class="planet earth" aria-hidden="true"></div>
+      <div class="planet moon" aria-hidden="true"></div>
+
+      <!-- Satelite (SVG) -->
+      <div class="satellite-orbit" aria-hidden="true">
+        <div class="satellite">
+          <svg viewBox="0 0 520 260" role="img" aria-label="Satelite">
+            <!-- panel izq -->
+            <g opacity="0.95">
+              <rect x="10" y="72" width="170" height="116" rx="10" class="sat-panel" />
+              <g class="sat-grid">
+                <path d="M30 92 H160 M30 112 H160 M30 132 H160 M30 152 H160 M30 172 H160" />
+                <path d="M50 82 V198 M70 82 V198 M90 82 V198 M110 82 V198 M130 82 V198 M150 82 V198" />
+              </g>
+            </g>
+
+            <!-- cuerpo -->
+            <g>
+              <rect x="190" y="78" width="140" height="104" rx="16" class="sat-body" />
+              <rect x="205" y="95" width="110" height="18" rx="8" class="sat-detail" />
+              <rect x="205" y="122" width="92" height="14" rx="7" class="sat-detail2" />
+              <circle cx="320" cy="130" r="22" class="sat-dish" />
+              <circle cx="320" cy="130" r="12" class="sat-dish-inner" />
+              <path d="M295 135 Q320 110 345 135" class="sat-dish-lines" />
+            </g>
+
+            <!-- panel der -->
+            <g opacity="0.95">
+              <rect x="340" y="72" width="170" height="116" rx="10" class="sat-panel" />
+              <g class="sat-grid">
+                <path d="M360 92 H490 M360 112 H490 M360 132 H490 M360 152 H490 M360 172 H490" />
+                <path d="M380 82 V198 M400 82 V198 M420 82 V198 M440 82 V198 M460 82 V198 M480 82 V198" />
+              </g>
+            </g>
+
+            <!-- foquito rojo (trabajando) -->
+            <circle cx="230" cy="150" r="7" class="sat-led" />
+          </svg>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Navbar -->
-  <header class="topbar">
-    <div class="wrap topbar-inner">
+    <!-- Header -->
+    <header class="topbar">
       <div class="brand">
-        <span class="brand-dot" aria-hidden="true"></span>
-        <span class="brand-name">CHOKXEN<span class="reg">®</span></span>
+        <div class="brand-dot"></div>
+        <div class="brand-name">CHOKXEN<span class="reg">®</span></div>
       </div>
 
-      <nav class="nav">
+      <button id="menuBtn" class="hamburger" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <!-- Drawer menu -->
+    <aside id="drawer" class="drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">Menu</div>
+        <button id="closeBtn" class="drawer-close" aria-label="Cerrar menu">✕</button>
+      </div>
+
+      <nav class="drawer-nav">
         <a href="#soluciones">Soluciones</a>
         <a href="#proceso">Proceso</a>
         <a href="#casos">Casos</a>
-        <a href="#certs">Certificaciones</a>
-        <a href="#contacto" class="nav-cta">Contactar</a>
+        <a href="#certificaciones">Certificaciones</a>
+        <a href="#contacto">Contactar</a>
       </nav>
-    </div>
-  </header>
 
-  <main class="wrap">
-    <!-- HERO -->
-    <section class="hero" id="inicio">
-      <div class="hero-card glass">
+      <div class="drawer-social">
+        <a target="_blank" rel="noopener" href="https://facebook.com/Chokxengroup">Facebook</a>
+        <a target="_blank" rel="noopener" href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr">Instagram</a>
+        <a target="_blank" rel="noopener" href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y">TikTok</a>
+      </div>
+    </aside>
+
+    <div id="backdrop" class="backdrop" aria-hidden="true"></div>
+
+    <!-- Content -->
+    <main class="wrap">
+      <!-- HERO -->
+      <section class="hero card glass" id="inicio">
         <h1>CHOKXEN</h1>
-        <p class="lead">
+        <p class="subtitle">
           Seguridad, automatizacion y tecnologia con enfoque cosmico.
           Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente.
         </p>
 
-        <div class="cta-row">
-          <a class="btn primary"
-             href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20informacion%20sobre%20sus%20servicios."
-             target="_blank" rel="noopener">
+        <div class="cta">
+          <a class="btn primary" target="_blank" rel="noopener"
+            href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20una%20cotizacion%20%F0%9F%9A%80">
             Hablar por WhatsApp
           </a>
-
-          <a class="btn ghost" href="#soluciones">
-            Explorar soluciones
-          </a>
+          <a class="btn ghost" href="#soluciones">Explorar soluciones</a>
         </div>
 
-        <div class="hero-badges">
-          <span class="pill"><span class="dot ok"></span> 24/7 listo para incidentes</span>
-          <span class="pill">Enfoque: personas + tecnologia</span>
-          <span class="pill">Automatizacion y cumplimiento</span>
+        <div class="chips glass2">
+          <span class="dot"></span> 24/7 listo para incidentes
+          <span class="sep">•</span> Enfoque: personas + tecnologia
+          <span class="sep">•</span> Automatizacion y cumplimiento
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- SOLUCIONES -->
-    <section class="section" id="soluciones">
-      <div class="section-head">
+      <!-- SOLUCIONES -->
+      <section class="section" id="soluciones">
         <h2>Soluciones</h2>
-        <p>Paquetes listos para empresas chicas, medianas y grandes. (Aqui tu cambias textos y agregas imagenes.)</p>
-      </div>
+        <p class="section-desc">Paquetes listos para empresas chicas, medianas y grandes. (Aqui tu cambias textos y agregas imagenes.)</p>
 
-      <div class="grid cards">
-        <article class="card tilt">
-          <h3>CHOKXEN Security</h3>
-          <p>Hardening, monitoreo, respuesta a incidentes, SIEM, politicas y controles.</p>
-          <ul class="mini">
-            <li>Auditoria y diagnostico</li>
-            <li>Proteccion endpoints</li>
-            <li>Alertas y playbooks</li>
-          </ul>
-          <div class="card-foot">
+        <div class="grid">
+          <article class="card glass">
+            <h3>CHOKXEN Security</h3>
+            <ul>
+              <li>Hardening, monitoreo, respuesta a incidentes</li>
+              <li>SIEM, politicas y controles</li>
+              <li>Auditoria y diagnostico</li>
+              <li>Proteccion endpoints</li>
+              <li>Alertas y playbooks</li>
+            </ul>
             <a class="link" href="#contacto">Cotizar</a>
-          </div>
-        </article>
+          </article>
 
-        <article class="card tilt">
-          <h3>Automatizacion</h3>
-          <p>Procesos que se hacen solos: reportes, respaldos, flujos, alertas, integraciones.</p>
-          <ul class="mini">
-            <li>Scripts / flujos</li>
-            <li>Integraciones</li>
-            <li>Dashboards</li>
-          </ul>
-          <div class="card-foot">
+          <article class="card glass">
+            <h3>Automatizacion</h3>
+            <ul>
+              <li>Procesos que se hacen solos: reportes, respaldos, flujos, alertas, integraciones</li>
+              <li>Scripts / flujos</li>
+              <li>Integraciones</li>
+              <li>Dashboards</li>
+            </ul>
             <a class="link" href="#contacto">Cotizar</a>
-          </div>
-        </article>
+          </article>
 
-        <article class="card tilt">
-          <h3>Infra & Redes</h3>
-          <p>Diseño, mejora y seguridad de redes. WiFi, VLANs, firewall, VPN, segmentacion.</p>
-          <ul class="mini">
-            <li>Topologia y cableado</li>
-            <li>Firewall / VPN</li>
-            <li>Optimización</li>
-          </ul>
-          <div class="card-foot">
+          <article class="card glass">
+            <h3>Infra & Redes</h3>
+            <ul>
+              <li>Diseno, mejora y seguridad de redes</li>
+              <li>WiFi, VLANs, firewall, VPN, segmentacion</li>
+              <li>Topologia y cableado</li>
+              <li>Optimizacion</li>
+            </ul>
             <a class="link" href="#contacto">Cotizar</a>
-          </div>
-        </article>
+          </article>
 
-        <article class="card tilt">
-          <h3>Cloud & Continuidad</h3>
-          <p>Backups, DRP, alta disponibilidad, migraciones y buenas practicas cloud.</p>
-          <ul class="mini">
-            <li>Backups versionados</li>
-            <li>Plan de continuidad</li>
-            <li>Monitoreo</li>
-          </ul>
-          <div class="card-foot">
+          <article class="card glass">
+            <h3>Cloud & Continuidad</h3>
+            <ul>
+              <li>Backups, DRP, alta disponibilidad, migraciones</li>
+              <li>Backups versionados</li>
+              <li>Plan de continuidad</li>
+              <li>Monitoreo</li>
+            </ul>
             <a class="link" href="#contacto">Cotizar</a>
-          </div>
-        </article>
-      </div>
-    </section>
+          </article>
+        </div>
+      </section>
 
-    <!-- PROCESO -->
-    <section class="section" id="proceso">
-      <div class="section-head">
+      <!-- PROCESO -->
+      <section class="section" id="proceso">
         <h2>Proceso</h2>
-        <p>Como trabajamos (paso a paso). Esto te da imagen de empresa seria.</p>
-      </div>
+        <p class="section-desc">Como trabajamos (paso a paso). Esto te da imagen de empresa seria.</p>
 
-      <div class="timeline">
-        <div class="step glass">
-          <span class="num">01</span>
-          <div>
-            <h3>Exploracion</h3>
-            <p>Entendemos tu contexto, riesgos, objetivos y presupuesto.</p>
-          </div>
-        </div>
-        <div class="step glass">
-          <span class="num">02</span>
-          <div>
-            <h3>Diagnostico</h3>
-            <p>Mapa de sistemas, red, vulnerabilidades y prioridades.</p>
-          </div>
-        </div>
-        <div class="step glass">
-          <span class="num">03</span>
-          <div>
-            <h3>Implementacion</h3>
-            <p>Controles, automatizacion, documentacion y pruebas.</p>
-          </div>
-        </div>
-        <div class="step glass">
-          <span class="num">04</span>
-          <div>
-            <h3>Monitoreo y Mejora</h3>
-            <p>Alertas, reportes, mantenimiento y roadmap.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CASOS / CLIENTES -->
-    <section class="section" id="casos">
-      <div class="section-head">
-        <h2>Casos y Clientes</h2>
-        <p>Cuadritos animados (como dijiste). Aqui tu luego pones logos / nombres.</p>
-      </div>
-
-      <div class="marquee glass">
-        <div class="marquee-track" aria-hidden="true">
-          <div class="chip">Empresa A</div>
-          <div class="chip">Empresa B</div>
-          <div class="chip">Gobierno / Proyecto</div>
-          <div class="chip">Retail</div>
-          <div class="chip">Industria</div>
-          <div class="chip">Educacion</div>
-          <div class="chip">Empresa A</div>
-          <div class="chip">Empresa B</div>
-          <div class="chip">Gobierno / Proyecto</div>
-          <div class="chip">Retail</div>
-          <div class="chip">Industria</div>
-          <div class="chip">Educacion</div>
-        </div>
-      </div>
-
-      <div class="grid cases">
-        <article class="case tilt">
-          <h3>Respuesta a incidente</h3>
-          <p>Reduccion de tiempo de deteccion y contencion con alertas y playbooks.</p>
-          <span class="tag">Seguridad</span>
-        </article>
-        <article class="case tilt">
-          <h3>Automatizacion de reportes</h3>
-          <p>Reportes semanales automaticos con indicadores y evidencias.</p>
-          <span class="tag">Automatizacion</span>
-        </article>
-        <article class="case tilt">
-          <h3>Segmentacion de red</h3>
-          <p>VLANs + politicas para separar usuarios, invitados y servidores.</p>
-          <span class="tag">Redes</span>
-        </article>
-      </div>
-    </section>
-
-    <!-- CERTIFICACIONES -->
-    <section class="section" id="certs">
-      <div class="section-head">
-        <h2>Certificaciones y Skills</h2>
-        <p>Inspirado en tarjetas tipo Credly (como tus capturas). Aqui puedes meter imagenes luego.</p>
-      </div>
-
-      <div class="grid certs">
-        <div class="cert glass tilt">
-          <div class="cert-icon">CCNA</div>
-          <div>
-            <h3>CCNA: Introduction to Networks</h3>
-            <p>Cisco</p>
-          </div>
-        </div>
-
-        <div class="cert glass tilt">
-          <div class="cert-icon">NSE</div>
-          <div>
-            <h3>Fortinet Certified Associate Cybersecurity</h3>
-            <p>Fortinet</p>
-          </div>
-        </div>
-
-        <div class="cert glass tilt">
-          <div class="cert-icon">AWS</div>
-          <div>
-            <h3>AWS Educate: Cloud 101</h3>
-            <p>Amazon Web Services</p>
-          </div>
-        </div>
-
-        <div class="cert glass tilt">
-          <div class="cert-icon">AI</div>
-          <div>
-            <h3>AI Literacy</h3>
-            <p>IBM SkillsBuild</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="section-head">
-        <h2>Preguntas frecuentes</h2>
-        <p>Esto aumenta conversion (la gente se anima a escribirte).</p>
-      </div>
-
-      <div class="faq">
-        <details class="glass">
-          <summary>¿Trabajan con empresas pequenas?</summary>
-          <p>Si. Tenemos paquetes por etapa: inicio, crecimiento y enterprise.</p>
-        </details>
-        <details class="glass">
-          <summary>¿Ofrecen soporte 24/7?</summary>
-          <p>Si, depende del paquete. En incidentes criticos respondemos con prioridad.</p>
-        </details>
-        <details class="glass">
-          <summary>¿Pueden hacer automatizacion y seguridad al mismo tiempo?</summary>
-          <p>Si. De hecho es la formula: seguridad + automatizacion = menos riesgo y menos caos.</p>
-        </details>
-      </div>
-    </section>
-
-    <!-- CONTACTO -->
-    <section class="section" id="contacto">
-      <div class="section-head">
-        <h2>Contacto</h2>
-        <p>Listo para que te lleguen mensajes directo por WhatsApp, correo o redes.</p>
-      </div>
-
-      <div class="contact grid">
-        <div class="glass contact-card tilt">
-          <h3>Escribenos</h3>
-          <p class="contact-line"><strong>WhatsApp:</strong> <a href="https://wa.me/524402671402" target="_blank" rel="noopener">+52 440 267 1402</a></p>
-          <p class="contact-line"><strong>Correo:</strong> <a href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a></p>
-
-          <div class="socials">
-            <a class="social" href="https://www.instagram.com/chokxengroup" target="_blank" rel="noopener">Instagram</a>
-            <a class="social" href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a>
-            <a class="social" href="https://www.tiktok.com/@chokxen" target="_blank" rel="noopener">TikTok</a>
+        <div class="steps">
+          <div class="step glass">
+            <div class="num">01</div>
+            <div>
+              <h4>Exploracion</h4>
+              <p>Entendemos tu contexto, riesgos, objetivos y presupuesto.</p>
+            </div>
           </div>
 
-          <div class="cta-row">
-            <a class="btn primary"
-               href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20cotizar%20un%20proyecto."
-               target="_blank" rel="noopener">
-              Cotizar por WhatsApp
-            </a>
-            <a class="btn ghost" href="#soluciones">Ver soluciones</a>
+          <div class="step glass">
+            <div class="num">02</div>
+            <div>
+              <h4>Diagnostico</h4>
+              <p>Inventario, vulnerabilidades, prioridades y plan de accion.</p>
+            </div>
+          </div>
+
+          <div class="step glass">
+            <div class="num">03</div>
+            <div>
+              <h4>Implementacion</h4>
+              <p>Controles, hardening, monitoreo y automatizaciones clave.</p>
+            </div>
+          </div>
+
+          <div class="step glass">
+            <div class="num">04</div>
+            <div>
+              <h4>Operacion</h4>
+              <p>Seguimiento, reportes, mejoras continuas y respuesta a incidentes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CASOS -->
+      <section class="section" id="casos">
+        <h2>Casos</h2>
+        <p class="section-desc">Aqui vas a poner tus casos reales (antes/despues, resultados, fotos, evidencia).</p>
+
+        <div class="grid">
+          <article class="card glass">
+            <h3>Caso #1</h3>
+            <p>Ejemplo: segmentacion VLAN + firewall + VPN para sucursales.</p>
+          </article>
+          <article class="card glass">
+            <h3>Caso #2</h3>
+            <p>Ejemplo: monitoreo + alertas + respuesta a incidentes 24/7.</p>
+          </article>
+          <article class="card glass">
+            <h3>Caso #3</h3>
+            <p>Ejemplo: backups versionados + DRP y pruebas de restauracion.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- CERTIFICACIONES -->
+      <section class="section" id="certificaciones">
+        <h2>Certificaciones</h2>
+        <p class="section-desc">Aqui metes tus badges (AWS, Cisco, Fortinet, IBM, etc.).</p>
+
+        <div class="badges card glass">
+          <div class="badge">AWS Educate</div>
+          <div class="badge">Cisco CCNA</div>
+          <div class="badge">Fortinet NSE</div>
+          <div class="badge">IBM SkillsBuild</div>
+          <div class="badge">Python Essentials</div>
+          <div class="badge">Cloud / DRP</div>
+        </div>
+      </section>
+
+      <!-- CONTACTO -->
+      <section class="section" id="contacto">
+        <h2>Contactar</h2>
+
+        <div class="contact card glass">
+          <div class="contact-grid">
+            <div>
+              <h3>Contacto directo</h3>
+              <p class="mono">Telefono / WhatsApp: <a class="link2" target="_blank" rel="noopener" href="https://wa.me/524402671402">+52 440 267 1402</a></p>
+              <p class="mono">Correo: <a class="link2" href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a></p>
+
+              <div class="social">
+                <a target="_blank" rel="noopener" href="https://facebook.com/Chokxengroup">Facebook</a>
+                <a target="_blank" rel="noopener" href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr">Instagram</a>
+                <a target="_blank" rel="noopener" href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y">TikTok</a>
+              </div>
+            </div>
+
+            <div class="contact-cta">
+              <a class="btn primary" target="_blank" rel="noopener"
+                href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20una%20cotizacion%20%F0%9F%9A%80">
+                Cotizar por WhatsApp
+              </a>
+              <a class="btn ghost" href="#soluciones">Ver soluciones</a>
+
+              <div class="mini-note glass2">
+                Tiempo de respuesta: <b>rapido</b><br />
+                Enfoque: <b>seguridad + automatizacion</b><br />
+                Objetivo: <b>empresa protegida y operando</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="footer-inner">
+          <div class="f-left">
+            <div class="f-brand">CHOKXEN<span class="reg">®</span></div>
+            <div class="f-legal">Nombre legal sugerido: <b>Chokxen SA de SV</b></div>
+          </div>
+
+          <div class="f-right">
+            <div class="f-title">Certificaciones (ejemplo)</div>
+            <div class="f-tags">
+              <span>Cloud</span><span>Networking</span><span>Cybersecurity</span><span>Automation</span>
+            </div>
           </div>
         </div>
 
-        <div class="glass contact-card tilt">
-          <h3>Formulario (placeholder)</h3>
-          <p>Cuando quieras lo conectamos a un formulario real (Netlify Forms / Google Forms / tu backend).</p>
-
-          <form class="form" action="#" onsubmit="return false;">
-            <label>
-              Nombre
-              <input type="text" placeholder="Tu nombre" />
-            </label>
-            <label>
-              Empresa
-              <input type="text" placeholder="Nombre de tu empresa" />
-            </label>
-            <label>
-              Mensaje
-              <textarea rows="4" placeholder="Que necesitas?"></textarea>
-            </label>
-            <button class="btn primary" type="submit">Enviar (demo)</button>
-          </form>
+        <div class="footer-bottom">
+          © <span id="year"></span> CHOKXEN®. Todos los derechos reservados.
         </div>
-      </div>
-    </section>
+      </footer>
+    </main>
 
-    <footer class="footer glass">
-      <div class="footer-grid">
-        <div>
-          <div class="brand footer-brand">
-            <span class="brand-dot" aria-hidden="true"></span>
-            <span class="brand-name">CHOKXEN<span class="reg">®</span></span>
-          </div>
-          <p class="muted">
-            Seguridad, automatizacion y tecnologia con enfoque cosmico.
-          </p>
-          <p class="muted small">
-            Razon social (por confirmar): CHOKXEN S.A. de C.V.
-          </p>
-        </div>
-
-        <div>
-          <h4>Certificaciones</h4>
-          <ul class="list">
-            <li>CCNA (Cisco)</li>
-            <li>Fortinet (NSE / Associate)</li>
-            <li>AWS Educate</li>
-            <li>IBM SkillsBuild</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4>Contacto</h4>
-          <ul class="list">
-            <li><a href="https://wa.me/524402671402" target="_blank" rel="noopener">WhatsApp</a></li>
-            <li><a href="mailto:contacto.chokxen@gmail.com">Correo</a></li>
-            <li><a href="https://www.instagram.com/chokxengroup" target="_blank" rel="noopener">Instagram</a></li>
-            <li><a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a></li>
-            <li><a href="https://www.tiktok.com/@chokxen" target="_blank" rel="noopener">TikTok</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <span>© <span id="year"></span> CHOKXEN®. Todos los derechos reservados.</span>
-        <span class="muted small">Hecho con enfoque cosmico.</span>
-      </div>
-    </footer>
-  </main>
-
-  <script src="stars.js"></script>
-  <script src="app.js"></script>
-</body>
+    <script src="stars.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
