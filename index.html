@@ -1,27 +1,35 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>CHOKXEN</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <!-- Fondo WebGL -->
-    <canvas id="space-bg" aria-hidden="true"></canvas>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHOKXEN</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-    <!-- Tu contenido -->
-    <main class="app">
-      <section class="hero">
+<body>
+  <!-- Layer 1: Nebula (CSS) -->
+  <div id="nebula" aria-hidden="true"></div>
+
+  <!-- Layer 2: Stars + comets (Canvas) -->
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <!-- Content -->
+  <main class="app">
+    <section class="hero">
+      <div class="glass">
         <h1>CHOKXEN</h1>
         <p>Seguridad, automatizacion y tecnologia con enfoque cosmico.</p>
-        <div class="cta">
-          <a class="btn primary" href="#contacto">Hablar</a>
-          <a class="btn ghost" href="#soluciones">Explorar</a>
-        </div>
-      </section>
-    </main>
 
-    <script src="./space-bg.js"></script>
-  </body>
+        <div class="btns">
+          <a class="btn primary" href="#hablar">Hablar</a>
+          <a class="btn" href="#explorar">Explorar</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./stars.js"></script>
+  <script src="./app.js"></script>
+</body>
 </html>
