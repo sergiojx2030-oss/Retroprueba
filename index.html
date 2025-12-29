@@ -1,959 +1,389 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CHOKXEN - Ciberseguridad y Automatizacion</title>
-  <meta name="description" content="CHOKXEN: seguridad, automatizacion y tecnologia con enfoque cosmico." />
-
-  <style>
-    :root{
-      --bg0:#05060b;
-      --bg1:#070a14;
-      --neb1: rgba(40,80,255,.35);
-      --neb2: rgba(140,60,255,.30);
-      --neb3: rgba(255,90,40,.18);
-
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.08);
-      --stroke: rgba(255,255,255,.12);
-      --text: rgba(255,255,255,.88);
-      --muted: rgba(255,255,255,.65);
-
-      --brand: #6ea8ff;
-      --brand2:#b48cff;
-      --ok:#54ffb2;
-
-      --radius: 22px;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --max: 1120px;
-    }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
-      color:var(--text);
-      background: radial-gradient(1200px 900px at 10% 85%, rgba(90,120,255,.14), transparent 60%),
-                  radial-gradient(900px 700px at 85% 90%, rgba(160,80,255,.12), transparent 60%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
-    }
-
-    /* --- Cosmic stage layers --- */
-    .cosmos{
-      position: fixed;
-      inset: 0;
-      z-index: -3;
-      pointer-events:none;
-      overflow:hidden;
-    }
-
-    /* Animated nebula (pure CSS, moves with cursor via JS vars) */
-    .nebula{
-      position:absolute;
-      inset:-12%;
-      background:
-        radial-gradient(1000px 800px at calc(15% + var(--mx,0px)) calc(85% + var(--my,0px)), var(--neb1), transparent 60%),
-        radial-gradient(900px 750px at calc(80% + var(--mx,0px)) calc(90% + var(--my,0px)), var(--neb2), transparent 65%),
-        radial-gradient(700px 600px at calc(65% - var(--mx,0px)) calc(20% - var(--my,0px)), rgba(80,255,240,.10), transparent 65%),
-        radial-gradient(820px 680px at calc(95% - var(--mx,0px)) calc(25% + var(--my,0px)), var(--neb3), transparent 70%);
-      filter: blur(30px) saturate(120%);
-      opacity:.95;
-      animation: nebFloat 18s ease-in-out infinite alternate;
-      transform: translate3d(0,0,0);
-    }
-    @keyframes nebFloat{
-      0%{ transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
-      100%{ transform: translate3d(1.8%, 1.2%, 0) scale(1.05); }
-    }
-
-    /* Canvas stars */
-    canvas#stars{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      opacity: 1;
-      z-index: -2;
-    }
-
-    /* Extra tiny dust using CSS (adds more small stars) */
-    .dust{
-      position:absolute;
-      inset:0;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.55) 50%, transparent 55%),
-        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.35) 50%, transparent 55%),
-        radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,.35) 50%, transparent 55%),
-        radial-gradient(1px 1px at 72% 65%, rgba(255,255,255,.25) 50%, transparent 55%),
-        radial-gradient(1px 1px at 88% 18%, rgba(255,255,255,.40) 50%, transparent 55%),
-        radial-gradient(1px 1px at 92% 82%, rgba(255,255,255,.30) 50%, transparent 55%);
-      opacity:.22;
-      animation: dustDrift 26s linear infinite;
-      z-index:-1;
-    }
-    @keyframes dustDrift{
-      0%{ transform: translate3d(0,0,0); }
-      100%{ transform: translate3d(-2.5%, 1.8%,0); }
-    }
-
-    /* Comets layer */
-    .comets{
-      position:absolute;
-      inset:0;
-      z-index:0;
-      opacity:.9;
-    }
-    .comet{
-      position:absolute;
-      width:220px;
-      height:2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.9), rgba(130,190,255,.55), rgba(255,255,255,0));
-      filter: drop-shadow(0 0 12px rgba(160,210,255,.35));
-      transform: rotate(-25deg);
-      border-radius: 999px;
-      animation: shoot 6.5s linear infinite;
-      opacity:.0;
-    }
-    .comet::after{
-      content:"";
-      position:absolute;
-      right:45px;
-      top:-2px;
-      width:6px;height:6px;
-      border-radius:50%;
-      background: rgba(255,255,255,.95);
-      box-shadow: 0 0 12px rgba(255,255,255,.55);
-    }
-    @keyframes shoot{
-      0%{ opacity:0; transform: translate3d(-30vw, -20vh,0) rotate(-25deg); }
-      8%{ opacity:.9; }
-      35%{ opacity:.6; }
-      45%{ opacity:0; transform: translate3d(120vw, 80vh,0) rotate(-25deg); }
-      100%{ opacity:0; transform: translate3d(120vw, 80vh,0) rotate(-25deg); }
-    }
-
-    /* Planet/satellite per section (changes via JS) */
-    .orbital{
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events:none;
-      opacity: .95;
-    }
-    .orb{
-      position:absolute;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      left: 7%;
-      top: 14%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%),
-        radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%),
-        radial-gradient(circle at 50% 50%, rgba(120,190,255,.35), rgba(80,120,255,.10), transparent 70%);
-      filter: blur(.2px) drop-shadow(0 20px 60px rgba(70,130,255,.15));
-      transform: translate3d(calc(var(--mx,0px) * .18), calc(var(--my,0px) * .18),0);
-      transition: opacity .6s ease, transform .18s ease;
-    }
-    .ring{
-      position:absolute;
-      left: 5%;
-      top: 24%;
-      width: 310px;
-      height: 110px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.10);
-      transform: rotate(-18deg) translate3d(calc(var(--mx,0px) * .12), calc(var(--my,0px) * .12),0);
-      filter: blur(.2px);
-      opacity:.65;
-      transition: opacity .6s ease, transform .18s ease;
-    }
-    .sat{
-      position:absolute;
-      width: 64px;
-      height: 64px;
-      right: 8%;
-      top: 18%;
-      border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06)),
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.2), transparent 55%);
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow: 0 18px 70px rgba(0,0,0,.35);
-      transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0);
-      animation: satFloat 7s ease-in-out infinite alternate;
-      opacity:.85;
-    }
-    .sat::before, .sat::after{
-      content:"";
-      position:absolute;
-      top: 22px;
-      width: 34px;
-      height: 18px;
-      border-radius: 10px;
-      background: linear-gradient(180deg, rgba(120,200,255,.22), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .sat::before{ left:-36px; }
-    .sat::after{ right:-36px; }
-    @keyframes satFloat{
-      0%{ transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0) translateY(-8px); }
-      100%{ transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0) translateY(10px); }
-    }
-
-    /* --- Layout --- */
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.20));
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    .nav{
-      max-width: var(--max);
-      margin: 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 18px;
-      gap: 12px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      text-decoration:none;
-      color:var(--text);
-      font-weight:800;
-      letter-spacing:.5px;
-    }
-    .logoMark{
-      width:34px;height:34px;border-radius:12px;
-      background: linear-gradient(135deg, rgba(110,168,255,.35), rgba(180,140,255,.18));
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: 0 10px 40px rgba(70,120,255,.10);
-    }
-    nav a{
-      color:var(--muted);
-      text-decoration:none;
-      font-size:14px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border:1px solid transparent;
-    }
-    nav a:hover{
-      color:var(--text);
-      background: rgba(255,255,255,.05);
-      border-color: rgba(255,255,255,.08);
-    }
-
-    main{
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 26px 18px 90px;
-    }
-
-    .hero{
-      min-height: 72vh;
-      display:grid;
-      place-items:center;
-      padding: 38px 0 10px;
-    }
-
-    .card{
-      width: min(740px, 100%);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-      padding: 26px 22px;
-      position:relative;
-      overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:-1px;
-      background: radial-gradient(700px 380px at 25% 35%, rgba(110,168,255,.18), transparent 60%),
-                  radial-gradient(700px 380px at 80% 70%, rgba(180,140,255,.14), transparent 60%);
-      opacity:.65;
-      pointer-events:none;
-    }
-    .cardInner{ position:relative; }
-
-    h1{
-      margin:0;
-      font-size: clamp(34px, 5vw, 54px);
-      letter-spacing: .8px;
-    }
-    .subtitle{
-      margin: 10px 0 18px;
-      color: var(--muted);
-      line-height:1.5;
-      font-size: 16px;
-      max-width: 58ch;
-    }
-
-    .actions{
-      display:flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-    .btn{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: 14px;
-      text-decoration:none;
-      font-weight: 700;
-      letter-spacing: .2px;
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.25);
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
-    .btnPrimary{
-      background: linear-gradient(135deg, rgba(110,168,255,.28), rgba(180,140,255,.12));
-      border-color: rgba(110,168,255,.35);
-    }
-    .pill{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.74);
-      font-size: 12px;
-      margin-top: 14px;
-      flex-wrap:wrap;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:50%;
-      background: var(--ok);
-      box-shadow: 0 0 12px rgba(84,255,178,.45);
-    }
-
-    section{
-      margin-top: 26px;
-    }
-    .sectionCard{
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: var(--radius);
-      padding: 22px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 14px 55px rgba(0,0,0,.35);
-    }
-    .sectionHead{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap: 14px;
-      flex-wrap:wrap;
-    }
-    .sectionHead h2{
-      margin:0;
-      font-size: 22px;
-      letter-spacing:.2px;
-    }
-    .sectionHead p{
-      margin:0;
-      color: var(--muted);
-      max-width: 62ch;
-      line-height:1.5;
-      font-size: 14px;
-    }
-
-    .grid3{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 14px;
-    }
-    @media (max-width: 900px){
-      .grid3{ grid-template-columns: 1fr; }
-      nav{ display:none; }
-    }
-
-    .tile{
-      padding: 14px;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      position:relative;
-      overflow:hidden;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
-    }
-    .tile:hover{ transform: translateY(-2px); border-color: rgba(110,168,255,.30); background: rgba(255,255,255,.04); }
-    .tile h3{ margin: 0 0 6px; font-size: 15px; letter-spacing:.2px; }
-    .tile p{ margin:0; color: var(--muted); font-size: 13px; line-height:1.45; }
-
-    /* Partners "moving tiles" */
-    .marquee{
-      margin-top: 14px;
-      overflow:hidden;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      position:relative;
-    }
-    .track{
-      display:flex;
-      gap: 12px;
-      padding: 12px;
-      width: max-content;
-      animation: scroll 22s linear infinite;
-    }
-    .marquee:hover .track{ animation-play-state: paused; }
-    @keyframes scroll{
-      0%{ transform: translateX(0); }
-      100%{ transform: translateX(-50%); }
-    }
-    .partner{
-      width: 170px;
-      height: 88px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      display:grid;
-      place-items:center;
-      color: rgba(255,255,255,.65);
-      font-weight:800;
-      letter-spacing:.4px;
-      position:relative;
-      overflow:hidden;
-    }
-    .partner::before{
-      content:"";
-      position:absolute;
-      inset:-40%;
-      background: radial-gradient(circle at 30% 30%, rgba(110,168,255,.18), transparent 55%),
-                  radial-gradient(circle at 70% 70%, rgba(180,140,255,.14), transparent 60%);
-      transform: rotate(18deg);
-      opacity:.7;
-    }
-    .partner span{ position:relative; font-size: 13px; }
-
-    /* Contact */
-    .contactGrid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 12px;
-      margin-top: 14px;
-    }
-    @media (max-width: 900px){
-      .contactGrid{ grid-template-columns: 1fr; }
-    }
-    .kvs{
-      display:grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .kv{
-      display:flex;
-      gap: 10px;
-      align-items:flex-start;
-      padding: 12px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-    }
-    .ico{
-      width: 34px; height: 34px;
-      border-radius: 12px;
-      display:grid;
-      place-items:center;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      flex: 0 0 auto;
-    }
-    .kv b{ display:block; font-size: 13px; }
-    .kv a{ color: var(--brand); text-decoration:none; }
-    .kv a:hover{ text-decoration:underline; }
-    .kv small{ color: var(--muted); display:block; margin-top: 2px; line-height:1.35; }
-
-    footer{
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 16px 18px 40px;
-      color: rgba(255,255,255,.55);
-      font-size: 12px;
-      border-top: 1px solid rgba(255,255,255,.06);
-    }
-    .footRow{
-      display:flex;
-      justify-content:space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items:center;
-      padding-top: 14px;
-    }
-    .social{
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .social a{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding: 10px 12px;
-      border-radius: 14px;
-      color: rgba(255,255,255,.75);
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-    }
-    .social a:hover{ border-color: rgba(110,168,255,.25); color: rgba(255,255,255,.9); }
-
-    /* Reduce motion */
-    @media (prefers-reduced-motion: reduce){
-      .nebula, .track, .comet, .sat{ animation:none !important; }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHOKXEN® | Seguridad, automatizacion y tecnologia</title>
+  <meta name="description" content="CHOKXEN: Seguridad, automatizacion y tecnologia con enfoque cosmico. Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <!-- Cosmic background -->
+  <!-- Fondo animado -->
   <div class="cosmos" aria-hidden="true">
     <div class="nebula"></div>
-    <canvas id="stars"></canvas>
-    <div class="dust"></div>
+    <canvas id="spaceCanvas"></canvas>
 
-    <div class="comets" id="comets">
-      <div class="comet" style="top:10%; left:-20%; animation-delay: 0s;"></div>
-      <div class="comet" style="top:28%; left:-30%; animation-delay: 2.4s;"></div>
-      <div class="comet" style="top:55%; left:-25%; animation-delay: 4.1s;"></div>
-      <div class="comet" style="top:70%; left:-35%; animation-delay: 5.6s;"></div>
+    <!-- Planetas (Tierra + Luna) -->
+    <div class="planet earth" title="Tierra"></div>
+    <div class="planet moon" title="Luna"></div>
+
+    <!-- Satelite -->
+    <div class="satellite" title="Satelite">
+      <span class="sat-body"></span>
+      <span class="sat-panel left"></span>
+      <span class="sat-panel right"></span>
+      <span class="sat-light" aria-hidden="true"></span>
     </div>
   </div>
 
-  <!-- Orbit objects -->
-  <div class="orbital" aria-hidden="true">
-    <div class="orb" id="orb"></div>
-    <div class="ring" id="ring"></div>
-    <div class="sat" id="sat"></div>
-  </div>
+  <!-- Navbar -->
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-name">CHOKXEN<span class="reg">®</span></span>
+      </div>
 
-  <header>
-    <div class="nav">
-      <a class="brand" href="#inicio">
-        <span class="logoMark"></span>
-        <span>CHOKXEN<span style="opacity:.75;">®</span></span>
-      </a>
-      <nav>
-        <a href="#servicios">Servicios</a>
+      <nav class="nav">
         <a href="#soluciones">Soluciones</a>
-        <a href="#partners">Partners</a>
-        <a href="#certificaciones">Certificaciones</a>
-        <a href="#contacto">Contacto</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#casos">Casos</a>
+        <a href="#certs">Certificaciones</a>
+        <a href="#contacto" class="nav-cta">Contactar</a>
       </nav>
     </div>
   </header>
 
-  <main id="inicio">
-    <section class="hero" data-sky="hero">
-      <div class="card">
-        <div class="cardInner">
-          <h1>CHOKXEN</h1>
-          <p class="subtitle">
-            Seguridad, automatizacion y tecnologia con enfoque cosmico.
-            Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente.
-          </p>
+  <main class="wrap">
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+      <div class="hero-card glass">
+        <h1>CHOKXEN</h1>
+        <p class="lead">
+          Seguridad, automatizacion y tecnologia con enfoque cosmico.
+          Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente.
+        </p>
 
-          <div class="actions">
-            <a class="btn btnPrimary" href="https://wa.me/524402671402" target="_blank" rel="noopener">
-              Hablar por WhatsApp
+        <div class="cta-row">
+          <a class="btn primary"
+             href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20informacion%20sobre%20sus%20servicios."
+             target="_blank" rel="noopener">
+            Hablar por WhatsApp
+          </a>
+
+          <a class="btn ghost" href="#soluciones">
+            Explorar soluciones
+          </a>
+        </div>
+
+        <div class="hero-badges">
+          <span class="pill"><span class="dot ok"></span> 24/7 listo para incidentes</span>
+          <span class="pill">Enfoque: personas + tecnologia</span>
+          <span class="pill">Automatizacion y cumplimiento</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOLUCIONES -->
+    <section class="section" id="soluciones">
+      <div class="section-head">
+        <h2>Soluciones</h2>
+        <p>Paquetes listos para empresas chicas, medianas y grandes. (Aqui tu cambias textos y agregas imagenes.)</p>
+      </div>
+
+      <div class="grid cards">
+        <article class="card tilt">
+          <h3>CHOKXEN Security</h3>
+          <p>Hardening, monitoreo, respuesta a incidentes, SIEM, politicas y controles.</p>
+          <ul class="mini">
+            <li>Auditoria y diagnostico</li>
+            <li>Proteccion endpoints</li>
+            <li>Alertas y playbooks</li>
+          </ul>
+          <div class="card-foot">
+            <a class="link" href="#contacto">Cotizar</a>
+          </div>
+        </article>
+
+        <article class="card tilt">
+          <h3>Automatizacion</h3>
+          <p>Procesos que se hacen solos: reportes, respaldos, flujos, alertas, integraciones.</p>
+          <ul class="mini">
+            <li>Scripts / flujos</li>
+            <li>Integraciones</li>
+            <li>Dashboards</li>
+          </ul>
+          <div class="card-foot">
+            <a class="link" href="#contacto">Cotizar</a>
+          </div>
+        </article>
+
+        <article class="card tilt">
+          <h3>Infra & Redes</h3>
+          <p>Diseño, mejora y seguridad de redes. WiFi, VLANs, firewall, VPN, segmentacion.</p>
+          <ul class="mini">
+            <li>Topologia y cableado</li>
+            <li>Firewall / VPN</li>
+            <li>Optimización</li>
+          </ul>
+          <div class="card-foot">
+            <a class="link" href="#contacto">Cotizar</a>
+          </div>
+        </article>
+
+        <article class="card tilt">
+          <h3>Cloud & Continuidad</h3>
+          <p>Backups, DRP, alta disponibilidad, migraciones y buenas practicas cloud.</p>
+          <ul class="mini">
+            <li>Backups versionados</li>
+            <li>Plan de continuidad</li>
+            <li>Monitoreo</li>
+          </ul>
+          <div class="card-foot">
+            <a class="link" href="#contacto">Cotizar</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROCESO -->
+    <section class="section" id="proceso">
+      <div class="section-head">
+        <h2>Proceso</h2>
+        <p>Como trabajamos (paso a paso). Esto te da imagen de empresa seria.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="step glass">
+          <span class="num">01</span>
+          <div>
+            <h3>Exploracion</h3>
+            <p>Entendemos tu contexto, riesgos, objetivos y presupuesto.</p>
+          </div>
+        </div>
+        <div class="step glass">
+          <span class="num">02</span>
+          <div>
+            <h3>Diagnostico</h3>
+            <p>Mapa de sistemas, red, vulnerabilidades y prioridades.</p>
+          </div>
+        </div>
+        <div class="step glass">
+          <span class="num">03</span>
+          <div>
+            <h3>Implementacion</h3>
+            <p>Controles, automatizacion, documentacion y pruebas.</p>
+          </div>
+        </div>
+        <div class="step glass">
+          <span class="num">04</span>
+          <div>
+            <h3>Monitoreo y Mejora</h3>
+            <p>Alertas, reportes, mantenimiento y roadmap.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CASOS / CLIENTES -->
+    <section class="section" id="casos">
+      <div class="section-head">
+        <h2>Casos y Clientes</h2>
+        <p>Cuadritos animados (como dijiste). Aqui tu luego pones logos / nombres.</p>
+      </div>
+
+      <div class="marquee glass">
+        <div class="marquee-track" aria-hidden="true">
+          <div class="chip">Empresa A</div>
+          <div class="chip">Empresa B</div>
+          <div class="chip">Gobierno / Proyecto</div>
+          <div class="chip">Retail</div>
+          <div class="chip">Industria</div>
+          <div class="chip">Educacion</div>
+          <div class="chip">Empresa A</div>
+          <div class="chip">Empresa B</div>
+          <div class="chip">Gobierno / Proyecto</div>
+          <div class="chip">Retail</div>
+          <div class="chip">Industria</div>
+          <div class="chip">Educacion</div>
+        </div>
+      </div>
+
+      <div class="grid cases">
+        <article class="case tilt">
+          <h3>Respuesta a incidente</h3>
+          <p>Reduccion de tiempo de deteccion y contencion con alertas y playbooks.</p>
+          <span class="tag">Seguridad</span>
+        </article>
+        <article class="case tilt">
+          <h3>Automatizacion de reportes</h3>
+          <p>Reportes semanales automaticos con indicadores y evidencias.</p>
+          <span class="tag">Automatizacion</span>
+        </article>
+        <article class="case tilt">
+          <h3>Segmentacion de red</h3>
+          <p>VLANs + politicas para separar usuarios, invitados y servidores.</p>
+          <span class="tag">Redes</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- CERTIFICACIONES -->
+    <section class="section" id="certs">
+      <div class="section-head">
+        <h2>Certificaciones y Skills</h2>
+        <p>Inspirado en tarjetas tipo Credly (como tus capturas). Aqui puedes meter imagenes luego.</p>
+      </div>
+
+      <div class="grid certs">
+        <div class="cert glass tilt">
+          <div class="cert-icon">CCNA</div>
+          <div>
+            <h3>CCNA: Introduction to Networks</h3>
+            <p>Cisco</p>
+          </div>
+        </div>
+
+        <div class="cert glass tilt">
+          <div class="cert-icon">NSE</div>
+          <div>
+            <h3>Fortinet Certified Associate Cybersecurity</h3>
+            <p>Fortinet</p>
+          </div>
+        </div>
+
+        <div class="cert glass tilt">
+          <div class="cert-icon">AWS</div>
+          <div>
+            <h3>AWS Educate: Cloud 101</h3>
+            <p>Amazon Web Services</p>
+          </div>
+        </div>
+
+        <div class="cert glass tilt">
+          <div class="cert-icon">AI</div>
+          <div>
+            <h3>AI Literacy</h3>
+            <p>IBM SkillsBuild</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="section-head">
+        <h2>Preguntas frecuentes</h2>
+        <p>Esto aumenta conversion (la gente se anima a escribirte).</p>
+      </div>
+
+      <div class="faq">
+        <details class="glass">
+          <summary>¿Trabajan con empresas pequenas?</summary>
+          <p>Si. Tenemos paquetes por etapa: inicio, crecimiento y enterprise.</p>
+        </details>
+        <details class="glass">
+          <summary>¿Ofrecen soporte 24/7?</summary>
+          <p>Si, depende del paquete. En incidentes criticos respondemos con prioridad.</p>
+        </details>
+        <details class="glass">
+          <summary>¿Pueden hacer automatizacion y seguridad al mismo tiempo?</summary>
+          <p>Si. De hecho es la formula: seguridad + automatizacion = menos riesgo y menos caos.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section class="section" id="contacto">
+      <div class="section-head">
+        <h2>Contacto</h2>
+        <p>Listo para que te lleguen mensajes directo por WhatsApp, correo o redes.</p>
+      </div>
+
+      <div class="contact grid">
+        <div class="glass contact-card tilt">
+          <h3>Escribenos</h3>
+          <p class="contact-line"><strong>WhatsApp:</strong> <a href="https://wa.me/524402671402" target="_blank" rel="noopener">+52 440 267 1402</a></p>
+          <p class="contact-line"><strong>Correo:</strong> <a href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a></p>
+
+          <div class="socials">
+            <a class="social" href="https://www.instagram.com/chokxengroup" target="_blank" rel="noopener">Instagram</a>
+            <a class="social" href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a>
+            <a class="social" href="https://www.tiktok.com/@chokxen" target="_blank" rel="noopener">TikTok</a>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn primary"
+               href="https://wa.me/524402671402?text=Hola%20CHOKXEN%2C%20quiero%20cotizar%20un%20proyecto."
+               target="_blank" rel="noopener">
+              Cotizar por WhatsApp
             </a>
-            <a class="btn" href="#soluciones">Explorar soluciones</a>
-          </div>
-
-          <div class="pill">
-            <span class="dot"></span>
-            <span>24/7 listo para incidentes</span>
-            <span style="opacity:.5;">•</span>
-            <span>Enfoque: personas + tecnologia</span>
-            <span style="opacity:.5;">•</span>
-            <span>Automatizacion y cumplimiento</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="servicios" class="sectionCard" data-sky="services">
-      <div class="sectionHead">
-        <div>
-          <h2>Servicios</h2>
-          <p>Bloques listos. Solo cambia texto, agrega imagenes y ya. (Yo te lo deje modular y limpio.)</p>
-        </div>
-      </div>
-
-      <div class="grid3">
-        <div class="tile">
-          <h3>SOC y Monitoreo 24/7</h3>
-          <p>Deteccion, priorizacion y respuesta a incidentes con visibilidad en tiempo real.</p>
-        </div>
-        <div class="tile">
-          <h3>PenTest y Hardening</h3>
-          <p>Evaluacion ofensiva controlada + reforzamiento de servidores, endpoints y nube.</p>
-        </div>
-        <div class="tile">
-          <h3>Cumplimiento y Automatizacion</h3>
-          <p>ISO 27001 / GDPR / PCI-DSS (segun aplique) + flujos que reducen error humano.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="soluciones" class="sectionCard" data-sky="solutions">
-      <div class="sectionHead">
-        <div>
-          <h2>Soluciones</h2>
-          <p>Estos son “apartados” propuestos. Tu me dices si los dejamos asi o los renombramos.</p>
-        </div>
-      </div>
-
-      <div class="grid3">
-        <div class="tile">
-          <h3>Proteccion Web y API</h3>
-          <p>WAF, mitigacion DDoS, rate limiting, hardening, y monitoreo de disponibilidad.</p>
-        </div>
-        <div class="tile">
-          <h3>Correo y Antiphishing</h3>
-          <p>Politicas, proteccion de identidad, concientizacion y simulaciones de ataque.</p>
-        </div>
-        <div class="tile">
-          <h3>Forense y Respuesta</h3>
-          <p>Contencion, analisis, erradicacion y recuperacion con reporte ejecutivo.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="partners" class="sectionCard" data-sky="partners">
-      <div class="sectionHead">
-        <div>
-          <h2>Partners / Herramientas</h2>
-          <p>Cuadritos moviendose. Aqui pones logos reales (PNG/SVG). Yo deje placeholders.</p>
-        </div>
-      </div>
-
-      <div class="marquee" aria-label="partners">
-        <div class="track" id="track">
-          <!-- Duplicado en JS para loop perfecto -->
-          <div class="partner"><span>Splunk</span></div>
-          <div class="partner"><span>Cloudflare</span></div>
-          <div class="partner"><span>Imperva</span></div>
-          <div class="partner"><span>CrowdStrike</span></div>
-          <div class="partner"><span>Burp Suite</span></div>
-          <div class="partner"><span>Fortinet</span></div>
-          <div class="partner"><span>Rapid7</span></div>
-          <div class="partner"><span>Palo Alto</span></div>
-          <div class="partner"><span>SIEM / SOAR</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="certificaciones" class="sectionCard" data-sky="certs">
-      <div class="sectionHead">
-        <div>
-          <h2>Certificaciones</h2>
-          <p>Tu ya tienes varias (Cisco/Fortinet/AWS/IBM). Aqui las ponemos como “badges”.</p>
-        </div>
-      </div>
-
-      <div class="grid3">
-        <div class="tile">
-          <h3>Cisco</h3>
-          <p>CCNA / Networking Academy (y lo que quieras agregar).</p>
-        </div>
-        <div class="tile">
-          <h3>Fortinet</h3>
-          <p>Fortinet Certified Associate + NSE (segun tus insignias).</p>
-        </div>
-        <div class="tile">
-          <h3>AWS / IBM</h3>
-          <p>AWS Educate + IBM SkillsBuild (AI/Big Data).</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="contacto" class="sectionCard" data-sky="contact">
-      <div class="sectionHead">
-        <div>
-          <h2>Contacto</h2>
-          <p>Listo para que te marquen, te escriban y vean redes. (Sin inventar nada: uso lo que me diste.)</p>
-        </div>
-      </div>
-
-      <div class="contactGrid">
-        <div>
-          <div class="kvs">
-            <div class="kv">
-              <div class="ico">📞</div>
-              <div>
-                <b>Telefono</b>
-                <a href="tel:+524402671402">+52 440 267 1402</a>
-                <small>Si quieres, agrego boton “Llamar” directo arriba en el Hero.</small>
-              </div>
-            </div>
-
-            <div class="kv">
-              <div class="ico">💬</div>
-              <div>
-                <b>WhatsApp</b>
-                <a href="https://wa.me/524402671402" target="_blank" rel="noopener">Enviar mensaje</a>
-                <small>Link listo para campañas y anuncios.</small>
-              </div>
-            </div>
-
-            <div class="kv">
-              <div class="ico">✉️</div>
-              <div>
-                <b>Correo</b>
-                <a href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a>
-                <small>Respuesta rapida y cotizaciones.</small>
-              </div>
-            </div>
+            <a class="btn ghost" href="#soluciones">Ver soluciones</a>
           </div>
         </div>
 
-        <div>
-          <div class="kvs">
-            <div class="kv">
-              <div class="ico">📷</div>
-              <div>
-                <b>Instagram</b>
-                <a href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr" target="_blank" rel="noopener">
-                  @chokxengroup
-                </a>
-                <small>Contenido y actualizaciones.</small>
-              </div>
-            </div>
+        <div class="glass contact-card tilt">
+          <h3>Formulario (placeholder)</h3>
+          <p>Cuando quieras lo conectamos a un formulario real (Netlify Forms / Google Forms / tu backend).</p>
 
-            <div class="kv">
-              <div class="ico">📘</div>
-              <div>
-                <b>Facebook</b>
-                <a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Chokxengroup</a>
-                <small>Comunidad y avisos.</small>
-              </div>
-            </div>
-
-            <div class="kv">
-              <div class="ico">🎵</div>
-              <div>
-                <b>TikTok</b>
-                <a href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y" target="_blank" rel="noopener">@chokxen</a>
-                <small>Tips y micro-clases.</small>
-              </div>
-            </div>
-          </div>
+          <form class="form" action="#" onsubmit="return false;">
+            <label>
+              Nombre
+              <input type="text" placeholder="Tu nombre" />
+            </label>
+            <label>
+              Empresa
+              <input type="text" placeholder="Nombre de tu empresa" />
+            </label>
+            <label>
+              Mensaje
+              <textarea rows="4" placeholder="Que necesitas?"></textarea>
+            </label>
+            <button class="btn primary" type="submit">Enviar (demo)</button>
+          </form>
         </div>
       </div>
     </section>
 
+    <footer class="footer glass">
+      <div class="footer-grid">
+        <div>
+          <div class="brand footer-brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span class="brand-name">CHOKXEN<span class="reg">®</span></span>
+          </div>
+          <p class="muted">
+            Seguridad, automatizacion y tecnologia con enfoque cosmico.
+          </p>
+          <p class="muted small">
+            Razon social (por confirmar): CHOKXEN S.A. de C.V.
+          </p>
+        </div>
+
+        <div>
+          <h4>Certificaciones</h4>
+          <ul class="list">
+            <li>CCNA (Cisco)</li>
+            <li>Fortinet (NSE / Associate)</li>
+            <li>AWS Educate</li>
+            <li>IBM SkillsBuild</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4>Contacto</h4>
+          <ul class="list">
+            <li><a href="https://wa.me/524402671402" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><a href="mailto:contacto.chokxen@gmail.com">Correo</a></li>
+            <li><a href="https://www.instagram.com/chokxengroup" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a></li>
+            <li><a href="https://www.tiktok.com/@chokxen" target="_blank" rel="noopener">TikTok</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> CHOKXEN®. Todos los derechos reservados.</span>
+        <span class="muted small">Hecho con enfoque cosmico.</span>
+      </div>
+    </footer>
   </main>
 
-  <footer>
-    <div class="footRow">
-      <div>
-        <div><b style="color:rgba(255,255,255,.78)">CHOKXEN®</b> <span style="opacity:.6">- Seguridad, automatizacion y tecnologia</span></div>
-        <div style="margin-top:6px; opacity:.72">
-          Razon social (por confirmar): <b>Chokxen SA SV</b>
-          <span style="opacity:.6">•</span>
-          © <span id="year"></span> Todos los derechos reservados.
-        </div>
-      </div>
-
-      <div class="social">
-        <a href="https://wa.me/524402671402" target="_blank" rel="noopener">WhatsApp</a>
-        <a href="mailto:contacto.chokxen@gmail.com">Email</a>
-        <a href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a>
-        <a href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y" target="_blank" rel="noopener">TikTok</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // --- Footer year
-    document.getElementById("year").textContent = String(new Date().getFullYear());
-
-    // --- Duplicate partners to create seamless loop
-    (function(){
-      var track = document.getElementById("track");
-      if(!track) return;
-      var copy = track.innerHTML;
-      track.innerHTML = copy + copy;
-    })();
-
-    // --- Mouse parallax variables for nebula + orbital objects
-    (function(){
-      var root = document.documentElement;
-      var mx = 0, my = 0;
-      var targetX = 0, targetY = 0;
-
-      function onMove(e){
-        var w = window.innerWidth || 1;
-        var h = window.innerHeight || 1;
-        var x = (e.clientX / w) - 0.5;
-        var y = (e.clientY / h) - 0.5;
-        targetX = x * 60; // px
-        targetY = y * 60;
-      }
-
-      function tick(){
-        mx += (targetX - mx) * 0.08;
-        my += (targetY - my) * 0.08;
-        root.style.setProperty("--mx", mx.toFixed(2) + "px");
-        root.style.setProperty("--my", my.toFixed(2) + "px");
-        requestAnimationFrame(tick);
-      }
-
-      window.addEventListener("mousemove", onMove, { passive:true });
-      window.addEventListener("touchmove", function(ev){
-        if(!ev.touches || !ev.touches[0]) return;
-        onMove({ clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
-      }, { passive:true });
-
-      tick();
-    })();
-
-    // --- Stars canvas (many small stars + twinkle + slight drift)
-    (function(){
-      var canvas = document.getElementById("stars");
-      if(!canvas) return;
-      var ctx = canvas.getContext("2d");
-      var stars = [];
-      var w, h, dpr;
-
-      function resize(){
-        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-        w = Math.floor(window.innerWidth * dpr);
-        h = Math.floor(window.innerHeight * dpr);
-        canvas.width = w;
-        canvas.height = h;
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-
-        // generate stars: lots of small ones
-        var count = Math.floor((w*h) / (dpr*dpr) / 7000); // density
-        count = Math.max(420, Math.min(1200, count));
-
-        stars = [];
-        for(var i=0;i<count;i++){
-          var r = Math.random();
-          var size = r < 0.85 ? (0.6 + Math.random()*1.1) : (1.2 + Math.random()*2.2);
-          stars.push({
-            x: Math.random()*w,
-            y: Math.random()*h,
-            r: size*dpr,
-            a: 0.25 + Math.random()*0.75,
-            tw: 0.002 + Math.random()*0.010,
-            sp: 0.03 + Math.random()*0.10
-          });
-        }
-      }
-
-      function draw(t){
-        ctx.clearRect(0,0,w,h);
-
-        // subtle vignette
-        var vg = ctx.createRadialGradient(w*0.5, h*0.4, 0, w*0.5, h*0.4, Math.max(w,h)*0.75);
-        vg.addColorStop(0, "rgba(0,0,0,0)");
-        vg.addColorStop(1, "rgba(0,0,0,0.38)");
-        ctx.fillStyle = vg;
-        ctx.fillRect(0,0,w,h);
-
-        for(var i=0;i<stars.length;i++){
-          var s = stars[i];
-          s.y += s.sp;
-          if(s.y > h + 10) s.y = -10;
-
-          // twinkle
-          s.a += Math.sin((t*0.001 + i) * 0.7) * s.tw;
-          if(s.a < 0.12) s.a = 0.12;
-          if(s.a > 0.95) s.a = 0.95;
-
-          ctx.beginPath();
-          ctx.fillStyle = "rgba(255,255,255," + s.a.toFixed(3) + ")";
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-          ctx.fill();
-
-          // tiny glow for bigger ones
-          if(s.r > 2.0*dpr){
-            ctx.beginPath();
-            ctx.fillStyle = "rgba(130,190,255," + (s.a*0.15).toFixed(3) + ")";
-            ctx.arc(s.x, s.y, s.r*2.2, 0, Math.PI*2);
-            ctx.fill();
-          }
-        }
-
-        requestAnimationFrame(draw);
-      }
-
-      window.addEventListener("resize", resize, { passive:true });
-      resize();
-      requestAnimationFrame(draw);
-    })();
-
-    // --- Change orbital visuals per section (planet colors/position)
-    (function(){
-      var orb = document.getElementById("orb");
-      var ring = document.getElementById("ring");
-      var sat = document.getElementById("sat");
-      if(!orb || !ring || !sat) return;
-
-      var presets = {
-        hero:   { orbLeft:"7%",  orbTop:"14%", size:220, ringOpacity:0.62, satRight:"8%",  satTop:"18%",
-                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%), radial-gradient(circle at 50% 50%, rgba(120,190,255,.35), rgba(80,120,255,.10), transparent 70%)" },
-        services:{ orbLeft:"10%", orbTop:"62%", size:190, ringOpacity:0.25, satRight:"10%", satTop:"10%",
-                  orbBg:"radial-gradient(circle at 35% 30%, rgba(255,255,255,.28), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.28), transparent 55%), radial-gradient(circle at 50% 50%, rgba(180,140,255,.32), rgba(80,120,255,.08), transparent 70%)" },
-        solutions:{ orbLeft:"78%", orbTop:"18%", size:210, ringOpacity:0.55, satRight:"78%", satTop:"72%",
-                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 42%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.30), transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,120,80,.18), rgba(180,140,255,.14), transparent 72%)" },
-        partners:{ orbLeft:"78%", orbTop:"62%", size:180, ringOpacity:0.20, satRight:"9%", satTop:"42%",
-                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.26), transparent 42%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.28), transparent 55%), radial-gradient(circle at 50% 50%, rgba(80,255,240,.15), rgba(80,120,255,.08), transparent 72%)" },
-        certs:{ orbLeft:"7%", orbTop:"18%", size:200, ringOpacity:0.50, satRight:"10%", satTop:"74%",
-                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%), radial-gradient(circle at 50% 50%, rgba(120,200,140,.18), rgba(110,168,255,.10), transparent 70%)" },
-        contact:{ orbLeft:"50%", orbTop:"70%", size:260, ringOpacity:0.35, satRight:"80%", satTop:"16%",
-                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.30), transparent 55%), radial-gradient(circle at 50% 50%, rgba(110,168,255,.25), rgba(180,140,255,.12), transparent 72%)" }
-      };
-
-      function apply(key){
-        var p = presets[key] || presets.hero;
-        orb.style.left = p.orbLeft;
-        orb.style.top = p.orbTop;
-        orb.style.width = p.size + "px";
-        orb.style.height = p.size + "px";
-        orb.style.background = p.orbBg;
-
-        ring.style.opacity = String(p.ringOpacity);
-        sat.style.right = p.satRight;
-        sat.style.top = p.satTop;
-      }
-
-      var sections = Array.prototype.slice.call(document.querySelectorAll("[data-sky]"));
-      var obs = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){
-          if(e.isIntersecting){
-            apply(e.target.getAttribute("data-sky"));
-          }
-        });
-      }, { threshold: 0.45 });
-
-      sections.forEach(function(s){ obs.observe(s); });
-      apply("hero");
-    })();
-  </script>
+  <script src="stars.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
