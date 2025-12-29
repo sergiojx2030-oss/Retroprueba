@@ -4,23 +4,148 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CHOKXEN</title>
-  <link rel="stylesheet" href="./styles.css" />
+
+  <style>
+    :root{
+      --mx: 0.5;
+      --my: 0.5;
+
+      --bg: #060715;
+      --ink: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+
+      --glass: rgba(255,255,255,.07);
+      --stroke: rgba(255,255,255,.16);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      overflow-x:hidden;
+    }
+
+    /* Layer 1: Nebula */
+    #nebula{
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+
+      background:
+        radial-gradient(1200px 900px at calc(20% + (var(--mx) - .5)*10%) calc(70% + (var(--my) - .5)*10%),
+          rgba(40,120,255,.45) 0%,
+          rgba(40,120,255,.20) 28%,
+          rgba(0,0,0,0) 60%),
+        radial-gradient(900px 700px at calc(70% + (var(--mx) - .5)*14%) calc(30% + (var(--my) - .5)*12%),
+          rgba(175,70,255,.35) 0%,
+          rgba(175,70,255,.15) 35%,
+          rgba(0,0,0,0) 62%),
+        radial-gradient(900px 700px at calc(85% + (var(--mx) - .5)*10%) calc(80% + (var(--my) - .5)*8%),
+          rgba(255,120,60,.26) 0%,
+          rgba(255,120,60,.12) 30%,
+          rgba(0,0,0,0) 60%),
+        radial-gradient(1100px 900px at calc(10% + (var(--mx) - .5)*8%) calc(15% + (var(--my) - .5)*8%),
+          rgba(0,255,230,.12) 0%,
+          rgba(0,255,230,.07) 25%,
+          rgba(0,0,0,0) 60%),
+        linear-gradient(180deg, #060715 0%, #050613 60%, #060715 100%);
+
+      filter: saturate(1.15);
+      transform: translateZ(0);
+      animation: nebulaFloat 14s ease-in-out infinite;
+    }
+
+    @keyframes nebulaFloat{
+      0%   { transform: scale(1.02) translate3d(0,0,0); }
+      50%  { transform: scale(1.05) translate3d(0,-6px,0); }
+      100% { transform: scale(1.02) translate3d(0,0,0); }
+    }
+
+    /* Layer 2: Stars canvas */
+    #stars{
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Content */
+    .app{
+      position: relative;
+      z-index: 2;
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .hero{ width: min(720px, 92vw); }
+
+    .glass{
+      width: 100%;
+      padding: 26px 22px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.10);
+    }
+
+    h1{
+      margin: 0 0 8px 0;
+      font-size: clamp(34px, 7vw, 56px);
+      letter-spacing: 1px;
+    }
+
+    p{
+      margin: 0 0 18px 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 16px;
+    }
+
+    .btns{ display:flex; gap:12px; flex-wrap:wrap; }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 18px;
+      border-radius:14px;
+      text-decoration:none;
+      color: rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.24); }
+    .btn:active{ transform: translateY(0px); }
+
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(90,150,255,.35), rgba(60,110,255,.18));
+      border-color: rgba(120,170,255,.45);
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Layer 1: Nebula (CSS) -->
   <div id="nebula" aria-hidden="true"></div>
-
-  <!-- Layer 2: Stars + comets (Canvas) -->
   <canvas id="stars" aria-hidden="true"></canvas>
 
-  <!-- Content -->
   <main class="app">
     <section class="hero">
       <div class="glass">
         <h1>CHOKXEN</h1>
         <p>Seguridad, automatizacion y tecnologia con enfoque cosmico.</p>
-
         <div class="btns">
           <a class="btn primary" href="#hablar">Hablar</a>
           <a class="btn" href="#explorar">Explorar</a>
@@ -29,7 +154,186 @@
     </section>
   </main>
 
-  <script src="./stars.js"></script>
-  <script src="./app.js"></script>
+  <script>
+    // Cursor/touch -> mueve nebulosa
+    (() => {
+      const root = document.documentElement;
+      function setVars(x, y){
+        root.style.setProperty("--mx", String(x));
+        root.style.setProperty("--my", String(y));
+      }
+      setVars(0.5, 0.5);
+
+      window.addEventListener("mousemove", (e) => {
+        setVars(e.clientX / innerWidth, e.clientY / innerHeight);
+      }, { passive:true });
+
+      window.addEventListener("touchmove", (e) => {
+        if (!e.touches || !e.touches.length) return;
+        const t = e.touches[0];
+        setVars(t.clientX / innerWidth, t.clientY / innerHeight);
+      }, { passive:true });
+    })();
+  </script>
+
+  <script>
+    // Estrellas + cometas (Canvas)
+    (() => {
+      const canvas = document.getElementById("stars");
+      const ctx = canvas.getContext("2d", { alpha:true });
+
+      const DPR = Math.min(2, window.devicePixelRatio || 1);
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      let W=0,H=0,t=0;
+      let stars=[], comets=[];
+      let mouseX=0.5, mouseY=0.5;
+
+      function resize(){
+        W = Math.max(1, Math.floor(innerWidth));
+        H = Math.max(1, Math.floor(innerHeight));
+
+        canvas.width = Math.floor(W*DPR);
+        canvas.height = Math.floor(H*DPR);
+        canvas.style.width = W+"px";
+        canvas.style.height = H+"px";
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+
+        const density = Math.floor((W*H)/7000); // mas estrellas
+        const count = Math.max(220, density);
+
+        stars = Array.from({length:count}, () => ({
+          x: Math.random()*W,
+          y: Math.random()*H,
+          r: Math.random()*1.8 + 0.35,
+          a: Math.random()*0.85 + 0.25,  // mas brillo
+          tw: Math.random()*10,
+          sp: Math.random()*0.9 + 0.1,
+          layer: Math.random()
+        }));
+
+        comets = [];
+        if (!reduceMotion){
+          spawnComet(true);
+          spawnComet(true);
+          spawnComet(true);
+        }
+      }
+
+      function setPointer(nx, ny){
+        mouseX = Math.max(0, Math.min(1, nx));
+        mouseY = Math.max(0, Math.min(1, ny));
+      }
+
+      addEventListener("mousemove", (e) => setPointer(e.clientX/W, e.clientY/H), { passive:true });
+      addEventListener("touchmove", (e) => {
+        if (!e.touches || !e.touches.length) return;
+        const p = e.touches[0];
+        setPointer(p.clientX/W, p.clientY/H);
+      }, { passive:true });
+
+      addEventListener("resize", resize);
+
+      function spawnComet(initial){
+        const fromLeft = Math.random() < 0.5;
+        const x = fromLeft ? -160 : (W+160);
+        const y = Math.random()*H;
+
+        const baseVx = 3.4 + Math.random()*3.2;
+        const vx = fromLeft ? baseVx : -baseVx;
+
+        const vy = (Math.random()*2.8 - 1.4) + (Math.random()<0.5 ? 0.9 : -0.9);
+
+        comets.push({
+          x,y,vx,vy,
+          len: 170 + Math.random()*260,
+          w: 1.2 + Math.random()*2.2,
+          glow: 0.20 + Math.random()*0.22,
+          delay: initial ? (Math.random()*80) : (110 + Math.random()*260),
+          life: 0
+        });
+      }
+
+      function drawStars(px, py){
+        for (const s of stars){
+          const tw = 0.65 + 0.35*Math.sin(t*(0.75+s.sp) + s.tw);
+          const alpha = s.a * tw;
+
+          const x = s.x + px*(0.15 + s.layer*1.0);
+          const y = s.y + py*(0.15 + s.layer*1.0);
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.arc(x,y,s.r,0,Math.PI*2);
+          ctx.fill();
+
+          if (s.r > 1.35){
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(170,215,255,${alpha*0.18})`;
+            ctx.arc(x,y,s.r*4.8,0,Math.PI*2);
+            ctx.fill();
+          }
+        }
+      }
+
+      function drawComets(){
+        for (let i=comets.length-1;i>=0;i--){
+          const c = comets[i];
+          c.life++;
+          if (c.life < c.delay) continue;
+
+          c.x += c.vx;
+          c.y += c.vy;
+
+          const ang = Math.atan2(c.vy, c.vx);
+          const tx = Math.cos(ang), ty = Math.sin(ang);
+
+          const headX = c.x, headY = c.y;
+          const tailX = headX - tx*c.len;
+          const tailY = headY - ty*c.len;
+
+          const g = ctx.createLinearGradient(headX,headY,tailX,tailY);
+          g.addColorStop(0.0, `rgba(255,255,255,0.95)`);
+          g.addColorStop(0.25, `rgba(200,230,255,0.45)`);
+          g.addColorStop(1.0, `rgba(200,230,255,0)`);
+
+          ctx.lineCap = "round";
+          ctx.strokeStyle = g;
+          ctx.lineWidth = c.w;
+          ctx.beginPath();
+          ctx.moveTo(headX,headY);
+          ctx.lineTo(tailX,tailY);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(170,215,255,${c.glow})`;
+          ctx.arc(headX,headY, 11, 0, Math.PI*2);
+          ctx.fill();
+
+          if (headX < -360 || headX > W+360 || headY < -360 || headY > H+360){
+            comets.splice(i,1);
+            spawnComet(false);
+          }
+        }
+      }
+
+      function loop(){
+        t += reduceMotion ? 0.004 : 0.013;
+
+        ctx.clearRect(0,0,W,H);
+
+        const px = (mouseX - 0.5)*26;
+        const py = (mouseY - 0.5)*26;
+
+        drawStars(px,py);
+        if (!reduceMotion) drawComets();
+
+        requestAnimationFrame(loop);
+      }
+
+      resize();
+      loop();
+    })();
+  </script>
 </body>
 </html>
