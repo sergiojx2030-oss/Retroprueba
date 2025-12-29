@@ -1,0 +1,102 @@
+:root{
+  --txt: rgba(255,255,255,.92);
+  --txt2: rgba(255,255,255,.68);
+  --glass: rgba(10,12,18,.34);
+  --stroke: rgba(255,255,255,.10);
+}
+
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:#05060a;
+  color:var(--txt);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  overflow-x:hidden;
+}
+
+#space-bg{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-2;
+  display:block;
+}
+
+/* Una capa ligera para dar profundidad sin tapar el shader */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background: radial-gradient(1200px 700px at 20% 30%, rgba(40,80,255,.10), transparent 60%),
+              radial-gradient(1000px 800px at 80% 70%, rgba(160,60,255,.08), transparent 60%);
+  z-index:-1;
+  pointer-events:none;
+}
+
+.app{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+}
+
+.hero{
+  max-width:900px;
+  width:100%;
+  padding:28px;
+  background:var(--glass);
+  border:1px solid var(--stroke);
+  border-radius:18px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 20px 80px rgba(0,0,0,.45);
+}
+
+.hero h1{
+  margin:0 0 8px;
+  font-size:48px;
+  letter-spacing:.5px;
+}
+
+.hero p{
+  margin:0 0 18px;
+  color:var(--txt2);
+  line-height:1.45;
+}
+
+.cta{ display:flex; gap:12px; flex-wrap:wrap; }
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  padding:0 18px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:600;
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+}
+
+.btn.primary{
+  color:#fff;
+  background: rgba(70,120,255,.28);
+  border:1px solid rgba(120,170,255,.35);
+  box-shadow: 0 10px 30px rgba(70,120,255,.22);
+}
+
+.btn.ghost{
+  color:#fff;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.btn:hover{
+  transform: translateY(-2px);
+}
+
+@media (max-width:520px){
+  .hero h1{ font-size:36px; }
+}
