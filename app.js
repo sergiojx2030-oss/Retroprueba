@@ -2,8 +2,10 @@
   const root = document.documentElement;
 
   function setParallax(x, y){
-    root.style.setProperty("--parxX", `${x * 18}px`);
-    root.style.setProperty("--parxY", `${y * 14}px`);
+    const px = `${x * 18}px`;
+    const py = `${y * 14}px`;
+    root.style.setProperty("--parxX", px);
+    root.style.setProperty("--parxY", py);
   }
 
   function onMove(e){
@@ -17,7 +19,7 @@
   window.addEventListener("mousemove", onMove, { passive:true });
   window.addEventListener("touchmove", onMove, { passive:true });
 
-  // Tilt ligero
+  // Tilt ligero (solo mouse)
   const tilts = Array.from(document.querySelectorAll(".tilt"));
   const tiltStrength = 7;
 
@@ -29,6 +31,7 @@
     const ry = (x * tiltStrength).toFixed(2);
     el.style.transform = `translateY(-2px) rotateX(${rx}deg) rotateY(${ry}deg)`;
   }
+
   function resetTilt(el){ el.style.transform = ""; }
 
   tilts.forEach(el => {
@@ -40,22 +43,23 @@
   const year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
 
-  // ===== SATELITE auto-detect (por tus broncas de mayusculas/rutas) =====
-  const sat = document.getElementById("satImg");
-  if (sat){
-    const candidates = [
-      "assets/satellite.png",
-      "assets/satellite.PNG",
-      "satellite.png",
-      "satellite.PNG"
-    ];
+  // Menu movil
+  const btn = document.getElementById("menuBtn");
+  const menu = document.getElementById("mobileMenu");
 
-    const tryLoad = (i) => {
-      if (i >= candidates.length) return;
-      sat.src = candidates[i];
-      sat.onerror = () => tryLoad(i + 1);
-    };
+  if (btn && menu){
+    btn.addEventListener("click", () => {
+      const isOpen = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!isOpen));
+      menu.hidden = isOpen;
+    });
 
-    tryLoad(0);
+    // cerrar al tocar un link
+    menu.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        btn.setAttribute("aria-expanded", "false");
+        menu.hidden = true;
+      });
+    });
   }
 })();
