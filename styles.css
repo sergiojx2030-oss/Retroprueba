@@ -50,36 +50,6 @@ a{color:inherit;text-decoration:none}
   display:block;
   transform: translate3d(calc(var(--parxX)*.2), calc(var(--parxY)*.2), 0);
 }
-
-/* ===== Cuadritos flotando ===== */
-.floaters{position:absolute; inset:0; pointer-events:none; z-index:0;}
-.sq{
-  position:absolute;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 60px rgba(0,0,0,.35);
-  opacity:.55;
-  animation: floatUp linear infinite;
-  will-change: transform;
-}
-@keyframes floatUp{
-  from{ transform: translate3d(0, 40vh, 0) rotate(0deg); }
-  to{ transform: translate3d(0, -140vh, 0) rotate(14deg); }
-}
-.s1{ left:6%;  top:92%; width:92px;  height:62px;  animation-duration:30s; }
-.s2{ left:16%; top:110%;width:140px; height:86px;  animation-duration:44s; animation-delay:-18s; opacity:.35;}
-.s3{ left:28%; top:98%; width:110px; height:70px;  animation-duration:36s; animation-delay:-12s; }
-.s4{ left:44%; top:118%;width:150px; height:90px;  animation-duration:48s; animation-delay:-28s; opacity:.30;}
-.s5{ left:58%; top:100%;width:100px; height:66px;  animation-duration:34s; animation-delay:-22s; }
-.s6{ left:72%; top:114%;width:132px; height:80px;  animation-duration:46s; animation-delay:-30s; opacity:.34;}
-.s7{ left:86%; top:96%; width:120px; height:74px;  animation-duration:40s; animation-delay:-16s; }
-.s8{ left:10%; top:140%;width:160px; height:96px;  animation-duration:54s; animation-delay:-40s; opacity:.26;}
-.s9{ left:36%; top:150%;width:120px; height:72px;  animation-duration:52s; animation-delay:-44s; opacity:.24;}
-.s10{left:64%; top:145%;width:170px; height:102px; animation-duration:58s; animation-delay:-50s; opacity:.22;}
-.s11{left:90%; top:152%;width:130px; height:78px;  animation-duration:56s; animation-delay:-46s; opacity:.24;}
-
 /* ===== Planetas (con imagen) ===== */
 .planet{
   position:absolute; border-radius:999px;
@@ -118,22 +88,20 @@ a{color:inherit;text-decoration:none}
 
 /* ===== Satelite imagen ===== */
 .satellite{
-  position:absolute;
-  right: 10%;
-  top: 12%;
-  width: min(560px, 76vw);
-  pointer-events:none;
-  opacity:.92;
-  transform: translate3d(calc(var(--parxX)*.55), calc(var(--parxY)*.55), 0) rotate(-8deg);
-  transition: transform .1s linear;
-  animation: satFloat 7s ease-in-out infinite;
-  filter: drop-shadow(0 18px 50px rgba(0,0,0,.55));
-  z-index:2;
+  position: absolute;
+  right: 6%;
+  top: 16%;
+  width: 220px;
+  z-index: 2;
+  pointer-events: none;
+  animation: satFloat 8s ease-in-out infinite;
+  filter: drop-shadow(0 20px 50px rgba(0,0,0,.75));
 }
-.satellite img{width:100%; height:auto; display:block}
-@keyframes satFloat{
-  0%,100%{ transform: translate3d(calc(var(--parxX)*.55), calc(var(--parxY)*.55), 0) rotate(-8deg) translateY(0px); }
-  50%{ transform: translate3d(calc(var(--parxX)*.55), calc(var(--parxY)*.55), 0) rotate(-8deg) translateY(12px); }
+
+.satellite img{
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* ===== Topbar ===== */
