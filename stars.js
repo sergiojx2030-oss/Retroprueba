@@ -1,178 +1,207 @@
 (() => {
-  const canvas = document.getElementById("stars");
+  const canvas = document.getElementById("spaceCanvas");
   const ctx = canvas.getContext("2d", { alpha: true });
 
-  const DPR = Math.min(2, window.devicePixelRatio || 1);
+  let w = 0, h = 0, dpr = 1;
 
-  let W = 0, H = 0;
-  let stars = [];
-  let comets = [];
+  const STAR_COUNT = 650;          // muchas estrellas
+  const STAR_TINY_RATIO = 0.78;    // muchas minis
+  const COMET_MAX = 4;             // cometas simultaneos max
+  const COMET_SPAWN_CHANCE = 0.020; // probabilidad por frame (ajusta)
+  const SPEED = 0.45;              // sensacion "avanzando"
+  const TWINKLE = 0.018;
+
   let mouseX = 0.5, mouseY = 0.5;
-  let t = 0;
 
-  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const stars = [];
+  const comets = [];
 
-  function resize(){
-    W = Math.max(1, Math.floor(window.innerWidth));
-    H = Math.max(1, Math.floor(window.innerHeight));
+  function resize() {
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    w = canvas.clientWidth = window.innerWidth;
+    h = canvas.clientHeight = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
 
-    canvas.width = Math.floor(W * DPR);
-    canvas.height = Math.floor(H * DPR);
-    canvas.style.width = W + "px";
-    canvas.style.height = H + "px";
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
 
-    // Star density
-    const density = Math.floor((W * H) / 8500);
-    const count = Math.max(150, density);
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
-    stars = Array.from({ length: count }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.6 + 0.2,
-      a: Math.random() * 0.65 + 0.15,
-      tw: Math.random() * 10,
-      sp: Math.random() * 0.9 + 0.1,
-      layer: Math.random()
-    }));
+  function makeStar() {
+    const isTiny = Math.random() < STAR_TINY_RATIO;
+    const size = isTiny ? rand(0.35, 1.0) : rand(1.0, 2.2);
+    const depth = rand(0.15, 1.0); // parallax + velocidad
+    return {
+      x: rand(0, w),
+      y: rand(0, h),
+      r: size,
+      z: depth,
+      a: rand(0.25, 0.9),
+      tw: rand(0.6, 1.4),
+      ph: rand(0, Math.PI * 2),
+    };
+  }
 
-    comets = [];
-    if (!reduceMotion){
-      spawnComet(true);
-      spawnComet(true);
+  function initStars() {
+    stars.length = 0;
+    for (let i = 0; i < STAR_COUNT; i++) stars.push(makeStar());
+  }
+
+  function spawnComet() {
+    // Sale desde varias partes (arriba/izq/der) y cruza natural
+    const edge = Math.floor(rand(0, 3));
+    let x, y;
+
+    if (edge === 0) { // arriba
+      x = rand(-w * 0.2, w * 1.2);
+      y = rand(-120, -20);
+    } else if (edge === 1) { // izquierda
+      x = rand(-120, -20);
+      y = rand(0, h * 0.9);
+    } else { // derecha
+      x = rand(w + 20, w + 120);
+      y = rand(0, h * 0.85);
     }
-  }
 
-  function setPointer(nx, ny){
-    mouseX = Math.max(0, Math.min(1, nx));
-    mouseY = Math.max(0, Math.min(1, ny));
-  }
+    // Direccion hacia abajo-derecha pero variable
+    const angleBase = rand(Math.PI * 0.20, Math.PI * 0.52);
+    const angle = edge === 2 ? Math.PI - angleBase : angleBase;
 
-  window.addEventListener("mousemove", (e) => {
-    setPointer(e.clientX / W, e.clientY / H);
-  }, { passive: true });
-
-  window.addEventListener("touchmove", (e) => {
-    if (!e.touches || !e.touches.length) return;
-    const p = e.touches[0];
-    setPointer(p.clientX / W, p.clientY / H);
-  }, { passive: true });
-
-  window.addEventListener("resize", resize);
-
-  function spawnComet(initial){
-    // Spawn from left or right, move diagonally, vary up/down
-    const fromLeft = Math.random() < 0.5;
-    const x = fromLeft ? -140 : (W + 140);
-    const y = Math.random() * H;
-
-    const baseVx = 3.2 + Math.random() * 2.6;
-    const vx = fromLeft ? baseVx : -baseVx;
-
-    // Up/down variation
-    const vy = (Math.random() * 2.4 - 1.2) + (Math.random() < 0.5 ? 0.7 : -0.7);
+    const sp = rand(8.0, 13.5);
+    const vx = Math.cos(angle) * sp;
+    const vy = Math.sin(angle) * sp;
 
     comets.push({
-      x, y,
-      vx, vy,
-      len: 140 + Math.random() * 220,
-      w: 1.0 + Math.random() * 1.8,
-      glow: 0.16 + Math.random() * 0.18,
-      // Delay before becoming visible (stagger)
-      delay: initial ? (Math.random() * 80) : (140 + Math.random() * 260),
-      life: 0
+      x, y, vx, vy,
+      life: 0,
+      maxLife: rand(45, 90),
+      width: rand(1.2, 2.4),
+      len: rand(140, 240),
+      glow: rand(0.22, 0.36),
     });
   }
 
-  function drawStars(px, py){
-    for (const s of stars){
-      const tw = 0.65 + 0.35 * Math.sin(t * (0.75 + s.sp) + s.tw);
-      const alpha = s.a * tw;
+  function drawStar(s) {
+    // parallax con mouse
+    const px = (mouseX - 0.5) * 42 * s.z;
+    const py = (mouseY - 0.5) * 28 * s.z;
 
-      const x = s.x + px * (0.12 + s.layer * 0.9);
-      const y = s.y + py * (0.12 + s.layer * 0.9);
+    // twinkle
+    s.ph += TWINKLE * s.tw;
+    const tw = (Math.sin(s.ph) + 1) * 0.5; // 0..1
+    const alpha = clamp(s.a + tw * 0.25, 0.05, 1);
 
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.arc(x, y, s.r, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.beginPath();
+    ctx.arc(s.x + px, s.y + py, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  }
 
-      // Soft glow for larger stars
-      if (s.r > 1.25){
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(170,215,255,${alpha * 0.15})`;
-        ctx.arc(x, y, s.r * 4.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
+  function updateStars() {
+    for (const s of stars) {
+      // "avance infinito": se mueven hacia arriba ligeramente (como viajar)
+      s.y -= SPEED * (0.6 + s.z * 1.4);
+      s.x -= SPEED * (0.08 + s.z * 0.18);
+
+      if (s.y < -10) { s.y = h + rand(0, 40); s.x = rand(0, w); }
+      if (s.x < -20) { s.x = w + rand(0, 40); s.y = rand(0, h); }
     }
   }
 
-  function drawComets(){
-    for (let i = comets.length - 1; i >= 0; i--){
+  function drawComet(c) {
+    // cabeza
+    ctx.save();
+    ctx.globalAlpha = 1;
+
+    // Cola (linea con gradiente)
+    const tx = c.x - c.vx * (c.len / 12);
+    const ty = c.y - c.vy * (c.len / 12);
+
+    const grad = ctx.createLinearGradient(c.x, c.y, tx, ty);
+    grad.addColorStop(0, `rgba(255,255,255,${0.92})`);
+    grad.addColorStop(0.25, `rgba(190,230,255,${0.55})`);
+    grad.addColorStop(1, `rgba(255,255,255,0)`);
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = c.width;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(c.x, c.y);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+
+    // brillo cabeza
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = `rgba(255,255,255,${0.9})`;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // glow
+    ctx.globalAlpha = c.glow;
+    ctx.fillStyle = `rgba(120,220,255,1)`;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function updateComets() {
+    for (let i = comets.length - 1; i >= 0; i--) {
       const c = comets[i];
-      c.life++;
-
-      if (c.life < c.delay) continue;
-
       c.x += c.vx;
       c.y += c.vy;
+      c.life += 1;
 
-      const ang = Math.atan2(c.vy, c.vx);
-      const tx = Math.cos(ang);
-      const ty = Math.sin(ang);
-
-      const headX = c.x;
-      const headY = c.y;
-
-      const tailX = headX - tx * c.len;
-      const tailY = headY - ty * c.len;
-
-      // Tail gradient
-      const g = ctx.createLinearGradient(headX, headY, tailX, tailY);
-      g.addColorStop(0.0, `rgba(255,255,255,0.85)`);
-      g.addColorStop(0.25, `rgba(200,230,255,0.35)`);
-      g.addColorStop(1.0, `rgba(200,230,255,0)`);
-
-      ctx.lineCap = "round";
-      ctx.strokeStyle = g;
-      ctx.lineWidth = c.w;
-      ctx.beginPath();
-      ctx.moveTo(headX, headY);
-      ctx.lineTo(tailX, tailY);
-      ctx.stroke();
-
-      // Head glow
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(170,215,255,${c.glow})`;
-      ctx.arc(headX, headY, 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Remove if far out of bounds
-      if (headX < -300 || headX > W + 300 || headY < -300 || headY > H + 300){
+      if (c.life > c.maxLife || c.x < -300 || c.x > w + 300 || c.y > h + 300) {
         comets.splice(i, 1);
-        spawnComet(false);
       }
     }
-  }
 
-  function loop(){
-    t += reduceMotion ? 0.004 : 0.013;
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Parallax (small)
-    const px = (mouseX - 0.5) * 22;
-    const py = (mouseY - 0.5) * 22;
-
-    drawStars(px, py);
-
-    if (!reduceMotion){
-      drawComets();
+    // Spawn controlado (no siempre igual)
+    if (comets.length < COMET_MAX && Math.random() < COMET_SPAWN_CHANCE) {
+      spawnComet();
     }
-
-    requestAnimationFrame(loop);
   }
+
+  function frame() {
+    ctx.clearRect(0, 0, w, h);
+
+    // estrellas
+    updateStars();
+    for (const s of stars) drawStar(s);
+
+    // cometas
+    updateComets();
+    for (const c of comets) drawComet(c);
+
+    requestAnimationFrame(frame);
+  }
+
+  function onMove(e){
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) / w;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) / h;
+    mouseX = clamp(x, 0, 1);
+    mouseY = clamp(y, 0, 1);
+  }
+
+  window.addEventListener("resize", () => {
+    resize();
+    initStars();
+  });
+
+  window.addEventListener("mousemove", onMove, { passive: true });
+  window.addEventListener("touchmove", onMove, { passive: true });
 
   resize();
-  loop();
+  initStars();
+  frame();
+
+  // Expose for debugging if needed
+  window.__CHOKXEN_SPACE__ = { stars, comets };
 })();
