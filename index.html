@@ -2,337 +2,957 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHOKXEN</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CHOKXEN - Ciberseguridad y Automatizacion</title>
+  <meta name="description" content="CHOKXEN: seguridad, automatizacion y tecnologia con enfoque cosmico." />
 
   <style>
     :root{
-      --mx: 0.5;
-      --my: 0.5;
+      --bg0:#05060b;
+      --bg1:#070a14;
+      --neb1: rgba(40,80,255,.35);
+      --neb2: rgba(140,60,255,.30);
+      --neb3: rgba(255,90,40,.18);
 
-      --bg: #060715;
-      --ink: rgba(255,255,255,.92);
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.88);
       --muted: rgba(255,255,255,.65);
 
-      --glass: rgba(255,255,255,.07);
-      --stroke: rgba(255,255,255,.16);
+      --brand: #6ea8ff;
+      --brand2:#b48cff;
+      --ok:#54ffb2;
+
+      --radius: 22px;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --max: 1120px;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 900px at 10% 85%, rgba(90,120,255,.14), transparent 60%),
+                  radial-gradient(900px 700px at 85% 90%, rgba(160,80,255,.12), transparent 60%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    /* Layer 1: Nebula */
-    #nebula{
+    /* --- Cosmic stage layers --- */
+    .cosmos{
       position: fixed;
       inset: 0;
-      z-index: 0;
-      pointer-events: none;
+      z-index: -3;
+      pointer-events:none;
+      overflow:hidden;
+    }
 
+    /* Animated nebula (pure CSS, moves with cursor via JS vars) */
+    .nebula{
+      position:absolute;
+      inset:-12%;
       background:
-        radial-gradient(1200px 900px at calc(20% + (var(--mx) - .5)*10%) calc(70% + (var(--my) - .5)*10%),
-          rgba(40,120,255,.45) 0%,
-          rgba(40,120,255,.20) 28%,
-          rgba(0,0,0,0) 60%),
-        radial-gradient(900px 700px at calc(70% + (var(--mx) - .5)*14%) calc(30% + (var(--my) - .5)*12%),
-          rgba(175,70,255,.35) 0%,
-          rgba(175,70,255,.15) 35%,
-          rgba(0,0,0,0) 62%),
-        radial-gradient(900px 700px at calc(85% + (var(--mx) - .5)*10%) calc(80% + (var(--my) - .5)*8%),
-          rgba(255,120,60,.26) 0%,
-          rgba(255,120,60,.12) 30%,
-          rgba(0,0,0,0) 60%),
-        radial-gradient(1100px 900px at calc(10% + (var(--mx) - .5)*8%) calc(15% + (var(--my) - .5)*8%),
-          rgba(0,255,230,.12) 0%,
-          rgba(0,255,230,.07) 25%,
-          rgba(0,0,0,0) 60%),
-        linear-gradient(180deg, #060715 0%, #050613 60%, #060715 100%);
-
-      filter: saturate(1.15);
-      transform: translateZ(0);
-      animation: nebulaFloat 14s ease-in-out infinite;
+        radial-gradient(1000px 800px at calc(15% + var(--mx,0px)) calc(85% + var(--my,0px)), var(--neb1), transparent 60%),
+        radial-gradient(900px 750px at calc(80% + var(--mx,0px)) calc(90% + var(--my,0px)), var(--neb2), transparent 65%),
+        radial-gradient(700px 600px at calc(65% - var(--mx,0px)) calc(20% - var(--my,0px)), rgba(80,255,240,.10), transparent 65%),
+        radial-gradient(820px 680px at calc(95% - var(--mx,0px)) calc(25% + var(--my,0px)), var(--neb3), transparent 70%);
+      filter: blur(30px) saturate(120%);
+      opacity:.95;
+      animation: nebFloat 18s ease-in-out infinite alternate;
+      transform: translate3d(0,0,0);
+    }
+    @keyframes nebFloat{
+      0%{ transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+      100%{ transform: translate3d(1.8%, 1.2%, 0) scale(1.05); }
     }
 
-    @keyframes nebulaFloat{
-      0%   { transform: scale(1.02) translate3d(0,0,0); }
-      50%  { transform: scale(1.05) translate3d(0,-6px,0); }
-      100% { transform: scale(1.02) translate3d(0,0,0); }
+    /* Canvas stars */
+    canvas#stars{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      opacity: 1;
+      z-index: -2;
     }
 
-    /* Layer 2: Stars canvas */
-    #stars{
+    /* Extra tiny dust using CSS (adds more small stars) */
+    .dust{
+      position:absolute;
+      inset:0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.55) 50%, transparent 55%),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.35) 50%, transparent 55%),
+        radial-gradient(1px 1px at 55% 30%, rgba(255,255,255,.35) 50%, transparent 55%),
+        radial-gradient(1px 1px at 72% 65%, rgba(255,255,255,.25) 50%, transparent 55%),
+        radial-gradient(1px 1px at 88% 18%, rgba(255,255,255,.40) 50%, transparent 55%),
+        radial-gradient(1px 1px at 92% 82%, rgba(255,255,255,.30) 50%, transparent 55%);
+      opacity:.22;
+      animation: dustDrift 26s linear infinite;
+      z-index:-1;
+    }
+    @keyframes dustDrift{
+      0%{ transform: translate3d(0,0,0); }
+      100%{ transform: translate3d(-2.5%, 1.8%,0); }
+    }
+
+    /* Comets layer */
+    .comets{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      opacity:.9;
+    }
+    .comet{
+      position:absolute;
+      width:220px;
+      height:2px;
+      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.9), rgba(130,190,255,.55), rgba(255,255,255,0));
+      filter: drop-shadow(0 0 12px rgba(160,210,255,.35));
+      transform: rotate(-25deg);
+      border-radius: 999px;
+      animation: shoot 6.5s linear infinite;
+      opacity:.0;
+    }
+    .comet::after{
+      content:"";
+      position:absolute;
+      right:45px;
+      top:-2px;
+      width:6px;height:6px;
+      border-radius:50%;
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 0 12px rgba(255,255,255,.55);
+    }
+    @keyframes shoot{
+      0%{ opacity:0; transform: translate3d(-30vw, -20vh,0) rotate(-25deg); }
+      8%{ opacity:.9; }
+      35%{ opacity:.6; }
+      45%{ opacity:0; transform: translate3d(120vw, 80vh,0) rotate(-25deg); }
+      100%{ opacity:0; transform: translate3d(120vw, 80vh,0) rotate(-25deg); }
+    }
+
+    /* Planet/satellite per section (changes via JS) */
+    .orbital{
       position: fixed;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
+      z-index: -1;
+      pointer-events:none;
+      opacity: .95;
+    }
+    .orb{
+      position:absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      left: 7%;
+      top: 14%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%),
+        radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(120,190,255,.35), rgba(80,120,255,.10), transparent 70%);
+      filter: blur(.2px) drop-shadow(0 20px 60px rgba(70,130,255,.15));
+      transform: translate3d(calc(var(--mx,0px) * .18), calc(var(--my,0px) * .18),0);
+      transition: opacity .6s ease, transform .18s ease;
+    }
+    .ring{
+      position:absolute;
+      left: 5%;
+      top: 24%;
+      width: 310px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.10);
+      transform: rotate(-18deg) translate3d(calc(var(--mx,0px) * .12), calc(var(--my,0px) * .12),0);
+      filter: blur(.2px);
+      opacity:.65;
+      transition: opacity .6s ease, transform .18s ease;
+    }
+    .sat{
+      position:absolute;
+      width: 64px;
+      height: 64px;
+      right: 8%;
+      top: 18%;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06)),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.2), transparent 55%);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 70px rgba(0,0,0,.35);
+      transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0);
+      animation: satFloat 7s ease-in-out infinite alternate;
+      opacity:.85;
+    }
+    .sat::before, .sat::after{
+      content:"";
+      position:absolute;
+      top: 22px;
+      width: 34px;
+      height: 18px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(120,200,255,.22), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .sat::before{ left:-36px; }
+    .sat::after{ right:-36px; }
+    @keyframes satFloat{
+      0%{ transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0) translateY(-8px); }
+      100%{ transform: rotate(12deg) translate3d(calc(var(--mx,0px) * .22), calc(var(--my,0px) * .22),0) translateY(10px); }
     }
 
-    /* Content */
-    .app{
-      position: relative;
-      z-index: 2;
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 28px;
-    }
-
-    .hero{ width: min(720px, 92vw); }
-
-    .glass{
-      width: 100%;
-      padding: 26px 22px;
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
-      border: 1px solid var(--stroke);
+    /* --- Layout --- */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 10;
       backdrop-filter: blur(14px);
-      box-shadow:
-        0 20px 60px rgba(0,0,0,.45),
-        inset 0 1px 0 rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.20));
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
+    .nav{
+      max-width: var(--max);
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 18px;
+      gap: 12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+    .logoMark{
+      width:34px;height:34px;border-radius:12px;
+      background: linear-gradient(135deg, rgba(110,168,255,.35), rgba(180,140,255,.18));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 40px rgba(70,120,255,.10);
+    }
+    nav a{
+      color:var(--muted);
+      text-decoration:none;
+      font-size:14px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border:1px solid transparent;
+    }
+    nav a:hover{
+      color:var(--text);
+      background: rgba(255,255,255,.05);
+      border-color: rgba(255,255,255,.08);
+    }
+
+    main{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 26px 18px 90px;
+    }
+
+    .hero{
+      min-height: 72vh;
+      display:grid;
+      place-items:center;
+      padding: 38px 0 10px;
+    }
+
+    .card{
+      width: min(740px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      padding: 26px 22px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(700px 380px at 25% 35%, rgba(110,168,255,.18), transparent 60%),
+                  radial-gradient(700px 380px at 80% 70%, rgba(180,140,255,.14), transparent 60%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .cardInner{ position:relative; }
 
     h1{
-      margin: 0 0 8px 0;
-      font-size: clamp(34px, 7vw, 56px);
-      letter-spacing: 1px;
+      margin:0;
+      font-size: clamp(34px, 5vw, 54px);
+      letter-spacing: .8px;
     }
-
-    p{
-      margin: 0 0 18px 0;
+    .subtitle{
+      margin: 10px 0 18px;
       color: var(--muted);
-      line-height: 1.35;
+      line-height:1.5;
       font-size: 16px;
+      max-width: 58ch;
     }
 
-    .btns{ display:flex; gap:12px; flex-wrap:wrap; }
-
+    .actions{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
     .btn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 14px;
+      text-decoration:none;
+      font-weight: 700;
+      letter-spacing: .2px;
       display:inline-flex;
       align-items:center;
-      justify-content:center;
-      padding:12px 18px;
-      border-radius:14px;
-      text-decoration:none;
-      color: rgba(255,255,255,.92);
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      gap:10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
     }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.24); }
-    .btn:active{ transform: translateY(0px); }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
+    .btnPrimary{
+      background: linear-gradient(135deg, rgba(110,168,255,.28), rgba(180,140,255,.12));
+      border-color: rgba(110,168,255,.35);
+    }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.74);
+      font-size: 12px;
+      margin-top: 14px;
+      flex-wrap:wrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 12px rgba(84,255,178,.45);
+    }
 
-    .btn.primary{
-      background: linear-gradient(180deg, rgba(90,150,255,.35), rgba(60,110,255,.18));
-      border-color: rgba(120,170,255,.45);
+    section{
+      margin-top: 26px;
+    }
+    .sectionCard{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 14px 55px rgba(0,0,0,.35);
+    }
+    .sectionHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap:wrap;
+    }
+    .sectionHead h2{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+    }
+    .sectionHead p{
+      margin:0;
+      color: var(--muted);
+      max-width: 62ch;
+      line-height:1.5;
+      font-size: 14px;
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 900px){
+      .grid3{ grid-template-columns: 1fr; }
+      nav{ display:none; }
+    }
+
+    .tile{
+      padding: 14px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .tile:hover{ transform: translateY(-2px); border-color: rgba(110,168,255,.30); background: rgba(255,255,255,.04); }
+    .tile h3{ margin: 0 0 6px; font-size: 15px; letter-spacing:.2px; }
+    .tile p{ margin:0; color: var(--muted); font-size: 13px; line-height:1.45; }
+
+    /* Partners "moving tiles" */
+    .marquee{
+      margin-top: 14px;
+      overflow:hidden;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      position:relative;
+    }
+    .track{
+      display:flex;
+      gap: 12px;
+      padding: 12px;
+      width: max-content;
+      animation: scroll 22s linear infinite;
+    }
+    .marquee:hover .track{ animation-play-state: paused; }
+    @keyframes scroll{
+      0%{ transform: translateX(0); }
+      100%{ transform: translateX(-50%); }
+    }
+    .partner{
+      width: 170px;
+      height: 88px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      display:grid;
+      place-items:center;
+      color: rgba(255,255,255,.65);
+      font-weight:800;
+      letter-spacing:.4px;
+      position:relative;
+      overflow:hidden;
+    }
+    .partner::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(110,168,255,.18), transparent 55%),
+                  radial-gradient(circle at 70% 70%, rgba(180,140,255,.14), transparent 60%);
+      transform: rotate(18deg);
+      opacity:.7;
+    }
+    .partner span{ position:relative; font-size: 13px; }
+
+    /* Contact */
+    .contactGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 900px){
+      .contactGrid{ grid-template-columns: 1fr; }
+    }
+    .kvs{
+      display:grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .kv{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      padding: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+    .ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      flex: 0 0 auto;
+    }
+    .kv b{ display:block; font-size: 13px; }
+    .kv a{ color: var(--brand); text-decoration:none; }
+    .kv a:hover{ text-decoration:underline; }
+    .kv small{ color: var(--muted); display:block; margin-top: 2px; line-height:1.35; }
+
+    footer{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 16px 18px 40px;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .footRow{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+      padding-top: 14px;
+    }
+    .social{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .social a{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.75);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .social a:hover{ border-color: rgba(110,168,255,.25); color: rgba(255,255,255,.9); }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .nebula, .track, .comet, .sat{ animation:none !important; }
     }
   </style>
 </head>
 
 <body>
-  <div id="nebula" aria-hidden="true"></div>
-  <canvas id="stars" aria-hidden="true"></canvas>
+  <!-- Cosmic background -->
+  <div class="cosmos" aria-hidden="true">
+    <div class="nebula"></div>
+    <canvas id="stars"></canvas>
+    <div class="dust"></div>
 
-  <main class="app">
-    <section class="hero">
-      <div class="glass">
-        <h1>CHOKXEN</h1>
-        <p>Seguridad, automatizacion y tecnologia con enfoque cosmico.</p>
-        <div class="btns">
-          <a class="btn primary" href="#hablar">Hablar</a>
-          <a class="btn" href="#explorar">Explorar</a>
+    <div class="comets" id="comets">
+      <div class="comet" style="top:10%; left:-20%; animation-delay: 0s;"></div>
+      <div class="comet" style="top:28%; left:-30%; animation-delay: 2.4s;"></div>
+      <div class="comet" style="top:55%; left:-25%; animation-delay: 4.1s;"></div>
+      <div class="comet" style="top:70%; left:-35%; animation-delay: 5.6s;"></div>
+    </div>
+  </div>
+
+  <!-- Orbit objects -->
+  <div class="orbital" aria-hidden="true">
+    <div class="orb" id="orb"></div>
+    <div class="ring" id="ring"></div>
+    <div class="sat" id="sat"></div>
+  </div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#inicio">
+        <span class="logoMark"></span>
+        <span>CHOKXEN<span style="opacity:.75;">®</span></span>
+      </a>
+      <nav>
+        <a href="#servicios">Servicios</a>
+        <a href="#soluciones">Soluciones</a>
+        <a href="#partners">Partners</a>
+        <a href="#certificaciones">Certificaciones</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" data-sky="hero">
+      <div class="card">
+        <div class="cardInner">
+          <h1>CHOKXEN</h1>
+          <p class="subtitle">
+            Seguridad, automatizacion y tecnologia con enfoque cosmico.
+            Protegemos tu negocio con estrategia, monitoreo y automatizacion inteligente.
+          </p>
+
+          <div class="actions">
+            <a class="btn btnPrimary" href="https://wa.me/524402671402" target="_blank" rel="noopener">
+              Hablar por WhatsApp
+            </a>
+            <a class="btn" href="#soluciones">Explorar soluciones</a>
+          </div>
+
+          <div class="pill">
+            <span class="dot"></span>
+            <span>24/7 listo para incidentes</span>
+            <span style="opacity:.5;">•</span>
+            <span>Enfoque: personas + tecnologia</span>
+            <span style="opacity:.5;">•</span>
+            <span>Automatizacion y cumplimiento</span>
+          </div>
         </div>
       </div>
     </section>
+
+    <section id="servicios" class="sectionCard" data-sky="services">
+      <div class="sectionHead">
+        <div>
+          <h2>Servicios</h2>
+          <p>Bloques listos. Solo cambia texto, agrega imagenes y ya. (Yo te lo deje modular y limpio.)</p>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="tile">
+          <h3>SOC y Monitoreo 24/7</h3>
+          <p>Deteccion, priorizacion y respuesta a incidentes con visibilidad en tiempo real.</p>
+        </div>
+        <div class="tile">
+          <h3>PenTest y Hardening</h3>
+          <p>Evaluacion ofensiva controlada + reforzamiento de servidores, endpoints y nube.</p>
+        </div>
+        <div class="tile">
+          <h3>Cumplimiento y Automatizacion</h3>
+          <p>ISO 27001 / GDPR / PCI-DSS (segun aplique) + flujos que reducen error humano.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="soluciones" class="sectionCard" data-sky="solutions">
+      <div class="sectionHead">
+        <div>
+          <h2>Soluciones</h2>
+          <p>Estos son “apartados” propuestos. Tu me dices si los dejamos asi o los renombramos.</p>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="tile">
+          <h3>Proteccion Web y API</h3>
+          <p>WAF, mitigacion DDoS, rate limiting, hardening, y monitoreo de disponibilidad.</p>
+        </div>
+        <div class="tile">
+          <h3>Correo y Antiphishing</h3>
+          <p>Politicas, proteccion de identidad, concientizacion y simulaciones de ataque.</p>
+        </div>
+        <div class="tile">
+          <h3>Forense y Respuesta</h3>
+          <p>Contencion, analisis, erradicacion y recuperacion con reporte ejecutivo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="partners" class="sectionCard" data-sky="partners">
+      <div class="sectionHead">
+        <div>
+          <h2>Partners / Herramientas</h2>
+          <p>Cuadritos moviendose. Aqui pones logos reales (PNG/SVG). Yo deje placeholders.</p>
+        </div>
+      </div>
+
+      <div class="marquee" aria-label="partners">
+        <div class="track" id="track">
+          <!-- Duplicado en JS para loop perfecto -->
+          <div class="partner"><span>Splunk</span></div>
+          <div class="partner"><span>Cloudflare</span></div>
+          <div class="partner"><span>Imperva</span></div>
+          <div class="partner"><span>CrowdStrike</span></div>
+          <div class="partner"><span>Burp Suite</span></div>
+          <div class="partner"><span>Fortinet</span></div>
+          <div class="partner"><span>Rapid7</span></div>
+          <div class="partner"><span>Palo Alto</span></div>
+          <div class="partner"><span>SIEM / SOAR</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="certificaciones" class="sectionCard" data-sky="certs">
+      <div class="sectionHead">
+        <div>
+          <h2>Certificaciones</h2>
+          <p>Tu ya tienes varias (Cisco/Fortinet/AWS/IBM). Aqui las ponemos como “badges”.</p>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="tile">
+          <h3>Cisco</h3>
+          <p>CCNA / Networking Academy (y lo que quieras agregar).</p>
+        </div>
+        <div class="tile">
+          <h3>Fortinet</h3>
+          <p>Fortinet Certified Associate + NSE (segun tus insignias).</p>
+        </div>
+        <div class="tile">
+          <h3>AWS / IBM</h3>
+          <p>AWS Educate + IBM SkillsBuild (AI/Big Data).</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto" class="sectionCard" data-sky="contact">
+      <div class="sectionHead">
+        <div>
+          <h2>Contacto</h2>
+          <p>Listo para que te marquen, te escriban y vean redes. (Sin inventar nada: uso lo que me diste.)</p>
+        </div>
+      </div>
+
+      <div class="contactGrid">
+        <div>
+          <div class="kvs">
+            <div class="kv">
+              <div class="ico">📞</div>
+              <div>
+                <b>Telefono</b>
+                <a href="tel:+524402671402">+52 440 267 1402</a>
+                <small>Si quieres, agrego boton “Llamar” directo arriba en el Hero.</small>
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="ico">💬</div>
+              <div>
+                <b>WhatsApp</b>
+                <a href="https://wa.me/524402671402" target="_blank" rel="noopener">Enviar mensaje</a>
+                <small>Link listo para campañas y anuncios.</small>
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="ico">✉️</div>
+              <div>
+                <b>Correo</b>
+                <a href="mailto:contacto.chokxen@gmail.com">contacto.chokxen@gmail.com</a>
+                <small>Respuesta rapida y cotizaciones.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="kvs">
+            <div class="kv">
+              <div class="ico">📷</div>
+              <div>
+                <b>Instagram</b>
+                <a href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr" target="_blank" rel="noopener">
+                  @chokxengroup
+                </a>
+                <small>Contenido y actualizaciones.</small>
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="ico">📘</div>
+              <div>
+                <b>Facebook</b>
+                <a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Chokxengroup</a>
+                <small>Comunidad y avisos.</small>
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="ico">🎵</div>
+              <div>
+                <b>TikTok</b>
+                <a href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y" target="_blank" rel="noopener">@chokxen</a>
+                <small>Tips y micro-clases.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
+  <footer>
+    <div class="footRow">
+      <div>
+        <div><b style="color:rgba(255,255,255,.78)">CHOKXEN®</b> <span style="opacity:.6">- Seguridad, automatizacion y tecnologia</span></div>
+        <div style="margin-top:6px; opacity:.72">
+          Razon social (por confirmar): <b>Chokxen SA SV</b>
+          <span style="opacity:.6">•</span>
+          © <span id="year"></span> Todos los derechos reservados.
+        </div>
+      </div>
+
+      <div class="social">
+        <a href="https://wa.me/524402671402" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="mailto:contacto.chokxen@gmail.com">Email</a>
+        <a href="https://www.instagram.com/chokxengroup?igsh=MW5yaXR3czgxZXJrcw%3D%3D&utm_source=qr" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://facebook.com/Chokxengroup" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.tiktok.com/@chokxen?_r=1&_t=ZS-92cKyQbOI1y" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    // Cursor/touch -> mueve nebulosa
-    (() => {
-      const root = document.documentElement;
-      function setVars(x, y){
-        root.style.setProperty("--mx", String(x));
-        root.style.setProperty("--my", String(y));
-      }
-      setVars(0.5, 0.5);
+    // --- Footer year
+    document.getElementById("year").textContent = String(new Date().getFullYear());
 
-      window.addEventListener("mousemove", (e) => {
-        setVars(e.clientX / innerWidth, e.clientY / innerHeight);
-      }, { passive:true });
-
-      window.addEventListener("touchmove", (e) => {
-        if (!e.touches || !e.touches.length) return;
-        const t = e.touches[0];
-        setVars(t.clientX / innerWidth, t.clientY / innerHeight);
-      }, { passive:true });
+    // --- Duplicate partners to create seamless loop
+    (function(){
+      var track = document.getElementById("track");
+      if(!track) return;
+      var copy = track.innerHTML;
+      track.innerHTML = copy + copy;
     })();
-  </script>
 
-  <script>
-    // Estrellas + cometas (Canvas)
-    (() => {
-      const canvas = document.getElementById("stars");
-      const ctx = canvas.getContext("2d", { alpha:true });
+    // --- Mouse parallax variables for nebula + orbital objects
+    (function(){
+      var root = document.documentElement;
+      var mx = 0, my = 0;
+      var targetX = 0, targetY = 0;
 
-      const DPR = Math.min(2, window.devicePixelRatio || 1);
-      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function onMove(e){
+        var w = window.innerWidth || 1;
+        var h = window.innerHeight || 1;
+        var x = (e.clientX / w) - 0.5;
+        var y = (e.clientY / h) - 0.5;
+        targetX = x * 60; // px
+        targetY = y * 60;
+      }
 
-      let W=0,H=0,t=0;
-      let stars=[], comets=[];
-      let mouseX=0.5, mouseY=0.5;
+      function tick(){
+        mx += (targetX - mx) * 0.08;
+        my += (targetY - my) * 0.08;
+        root.style.setProperty("--mx", mx.toFixed(2) + "px");
+        root.style.setProperty("--my", my.toFixed(2) + "px");
+        requestAnimationFrame(tick);
+      }
+
+      window.addEventListener("mousemove", onMove, { passive:true });
+      window.addEventListener("touchmove", function(ev){
+        if(!ev.touches || !ev.touches[0]) return;
+        onMove({ clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
+      }, { passive:true });
+
+      tick();
+    })();
+
+    // --- Stars canvas (many small stars + twinkle + slight drift)
+    (function(){
+      var canvas = document.getElementById("stars");
+      if(!canvas) return;
+      var ctx = canvas.getContext("2d");
+      var stars = [];
+      var w, h, dpr;
 
       function resize(){
-        W = Math.max(1, Math.floor(innerWidth));
-        H = Math.max(1, Math.floor(innerHeight));
+        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        w = Math.floor(window.innerWidth * dpr);
+        h = Math.floor(window.innerHeight * dpr);
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
 
-        canvas.width = Math.floor(W*DPR);
-        canvas.height = Math.floor(H*DPR);
-        canvas.style.width = W+"px";
-        canvas.style.height = H+"px";
-        ctx.setTransform(DPR,0,0,DPR,0,0);
+        // generate stars: lots of small ones
+        var count = Math.floor((w*h) / (dpr*dpr) / 7000); // density
+        count = Math.max(420, Math.min(1200, count));
 
-        const density = Math.floor((W*H)/7000); // mas estrellas
-        const count = Math.max(220, density);
-
-        stars = Array.from({length:count}, () => ({
-          x: Math.random()*W,
-          y: Math.random()*H,
-          r: Math.random()*1.8 + 0.35,
-          a: Math.random()*0.85 + 0.25,  // mas brillo
-          tw: Math.random()*10,
-          sp: Math.random()*0.9 + 0.1,
-          layer: Math.random()
-        }));
-
-        comets = [];
-        if (!reduceMotion){
-          spawnComet(true);
-          spawnComet(true);
-          spawnComet(true);
+        stars = [];
+        for(var i=0;i<count;i++){
+          var r = Math.random();
+          var size = r < 0.85 ? (0.6 + Math.random()*1.1) : (1.2 + Math.random()*2.2);
+          stars.push({
+            x: Math.random()*w,
+            y: Math.random()*h,
+            r: size*dpr,
+            a: 0.25 + Math.random()*0.75,
+            tw: 0.002 + Math.random()*0.010,
+            sp: 0.03 + Math.random()*0.10
+          });
         }
       }
 
-      function setPointer(nx, ny){
-        mouseX = Math.max(0, Math.min(1, nx));
-        mouseY = Math.max(0, Math.min(1, ny));
-      }
+      function draw(t){
+        ctx.clearRect(0,0,w,h);
 
-      addEventListener("mousemove", (e) => setPointer(e.clientX/W, e.clientY/H), { passive:true });
-      addEventListener("touchmove", (e) => {
-        if (!e.touches || !e.touches.length) return;
-        const p = e.touches[0];
-        setPointer(p.clientX/W, p.clientY/H);
-      }, { passive:true });
+        // subtle vignette
+        var vg = ctx.createRadialGradient(w*0.5, h*0.4, 0, w*0.5, h*0.4, Math.max(w,h)*0.75);
+        vg.addColorStop(0, "rgba(0,0,0,0)");
+        vg.addColorStop(1, "rgba(0,0,0,0.38)");
+        ctx.fillStyle = vg;
+        ctx.fillRect(0,0,w,h);
 
-      addEventListener("resize", resize);
+        for(var i=0;i<stars.length;i++){
+          var s = stars[i];
+          s.y += s.sp;
+          if(s.y > h + 10) s.y = -10;
 
-      function spawnComet(initial){
-        const fromLeft = Math.random() < 0.5;
-        const x = fromLeft ? -160 : (W+160);
-        const y = Math.random()*H;
-
-        const baseVx = 3.4 + Math.random()*3.2;
-        const vx = fromLeft ? baseVx : -baseVx;
-
-        const vy = (Math.random()*2.8 - 1.4) + (Math.random()<0.5 ? 0.9 : -0.9);
-
-        comets.push({
-          x,y,vx,vy,
-          len: 170 + Math.random()*260,
-          w: 1.2 + Math.random()*2.2,
-          glow: 0.20 + Math.random()*0.22,
-          delay: initial ? (Math.random()*80) : (110 + Math.random()*260),
-          life: 0
-        });
-      }
-
-      function drawStars(px, py){
-        for (const s of stars){
-          const tw = 0.65 + 0.35*Math.sin(t*(0.75+s.sp) + s.tw);
-          const alpha = s.a * tw;
-
-          const x = s.x + px*(0.15 + s.layer*1.0);
-          const y = s.y + py*(0.15 + s.layer*1.0);
+          // twinkle
+          s.a += Math.sin((t*0.001 + i) * 0.7) * s.tw;
+          if(s.a < 0.12) s.a = 0.12;
+          if(s.a > 0.95) s.a = 0.95;
 
           ctx.beginPath();
-          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          ctx.arc(x,y,s.r,0,Math.PI*2);
+          ctx.fillStyle = "rgba(255,255,255," + s.a.toFixed(3) + ")";
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
           ctx.fill();
 
-          if (s.r > 1.35){
+          // tiny glow for bigger ones
+          if(s.r > 2.0*dpr){
             ctx.beginPath();
-            ctx.fillStyle = `rgba(170,215,255,${alpha*0.18})`;
-            ctx.arc(x,y,s.r*4.8,0,Math.PI*2);
+            ctx.fillStyle = "rgba(130,190,255," + (s.a*0.15).toFixed(3) + ")";
+            ctx.arc(s.x, s.y, s.r*2.2, 0, Math.PI*2);
             ctx.fill();
           }
         }
+
+        requestAnimationFrame(draw);
       }
 
-      function drawComets(){
-        for (let i=comets.length-1;i>=0;i--){
-          const c = comets[i];
-          c.life++;
-          if (c.life < c.delay) continue;
-
-          c.x += c.vx;
-          c.y += c.vy;
-
-          const ang = Math.atan2(c.vy, c.vx);
-          const tx = Math.cos(ang), ty = Math.sin(ang);
-
-          const headX = c.x, headY = c.y;
-          const tailX = headX - tx*c.len;
-          const tailY = headY - ty*c.len;
-
-          const g = ctx.createLinearGradient(headX,headY,tailX,tailY);
-          g.addColorStop(0.0, `rgba(255,255,255,0.95)`);
-          g.addColorStop(0.25, `rgba(200,230,255,0.45)`);
-          g.addColorStop(1.0, `rgba(200,230,255,0)`);
-
-          ctx.lineCap = "round";
-          ctx.strokeStyle = g;
-          ctx.lineWidth = c.w;
-          ctx.beginPath();
-          ctx.moveTo(headX,headY);
-          ctx.lineTo(tailX,tailY);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(170,215,255,${c.glow})`;
-          ctx.arc(headX,headY, 11, 0, Math.PI*2);
-          ctx.fill();
-
-          if (headX < -360 || headX > W+360 || headY < -360 || headY > H+360){
-            comets.splice(i,1);
-            spawnComet(false);
-          }
-        }
-      }
-
-      function loop(){
-        t += reduceMotion ? 0.004 : 0.013;
-
-        ctx.clearRect(0,0,W,H);
-
-        const px = (mouseX - 0.5)*26;
-        const py = (mouseY - 0.5)*26;
-
-        drawStars(px,py);
-        if (!reduceMotion) drawComets();
-
-        requestAnimationFrame(loop);
-      }
-
+      window.addEventListener("resize", resize, { passive:true });
       resize();
-      loop();
+      requestAnimationFrame(draw);
+    })();
+
+    // --- Change orbital visuals per section (planet colors/position)
+    (function(){
+      var orb = document.getElementById("orb");
+      var ring = document.getElementById("ring");
+      var sat = document.getElementById("sat");
+      if(!orb || !ring || !sat) return;
+
+      var presets = {
+        hero:   { orbLeft:"7%",  orbTop:"14%", size:220, ringOpacity:0.62, satRight:"8%",  satTop:"18%",
+                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%), radial-gradient(circle at 50% 50%, rgba(120,190,255,.35), rgba(80,120,255,.10), transparent 70%)" },
+        services:{ orbLeft:"10%", orbTop:"62%", size:190, ringOpacity:0.25, satRight:"10%", satTop:"10%",
+                  orbBg:"radial-gradient(circle at 35% 30%, rgba(255,255,255,.28), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.28), transparent 55%), radial-gradient(circle at 50% 50%, rgba(180,140,255,.32), rgba(80,120,255,.08), transparent 70%)" },
+        solutions:{ orbLeft:"78%", orbTop:"18%", size:210, ringOpacity:0.55, satRight:"78%", satTop:"72%",
+                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 42%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.30), transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,120,80,.18), rgba(180,140,255,.14), transparent 72%)" },
+        partners:{ orbLeft:"78%", orbTop:"62%", size:180, ringOpacity:0.20, satRight:"9%", satTop:"42%",
+                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.26), transparent 42%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.28), transparent 55%), radial-gradient(circle at 50% 50%, rgba(80,255,240,.15), rgba(80,120,255,.08), transparent 72%)" },
+        certs:{ orbLeft:"7%", orbTop:"18%", size:200, ringOpacity:0.50, satRight:"10%", satTop:"74%",
+                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.35), transparent 55%), radial-gradient(circle at 50% 50%, rgba(120,200,140,.18), rgba(110,168,255,.10), transparent 70%)" },
+        contact:{ orbLeft:"50%", orbTop:"70%", size:260, ringOpacity:0.35, satRight:"80%", satTop:"16%",
+                  orbBg:"radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 40%), radial-gradient(circle at 60% 70%, rgba(0,0,0,.30), transparent 55%), radial-gradient(circle at 50% 50%, rgba(110,168,255,.25), rgba(180,140,255,.12), transparent 72%)" }
+      };
+
+      function apply(key){
+        var p = presets[key] || presets.hero;
+        orb.style.left = p.orbLeft;
+        orb.style.top = p.orbTop;
+        orb.style.width = p.size + "px";
+        orb.style.height = p.size + "px";
+        orb.style.background = p.orbBg;
+
+        ring.style.opacity = String(p.ringOpacity);
+        sat.style.right = p.satRight;
+        sat.style.top = p.satTop;
+      }
+
+      var sections = Array.prototype.slice.call(document.querySelectorAll("[data-sky]"));
+      var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            apply(e.target.getAttribute("data-sky"));
+          }
+        });
+      }, { threshold: 0.45 });
+
+      sections.forEach(function(s){ obs.observe(s); });
+      apply("hero");
     })();
   </script>
 </body>
