@@ -1,207 +1,90 @@
 (() => {
-  const canvas = document.getElementById("spaceCanvas");
-  const ctx = canvas.getContext("2d", { alpha: true });
+  const canvas = document.getElementById("starsCanvas");
+  const ctx = canvas.getContext("2d");
 
-  let w = 0, h = 0, dpr = 1;
+  let w = 0;
+  let h = 0;
+  let dpr = 1;
 
-  const STAR_COUNT = 650;          // muchas estrellas
-  const STAR_TINY_RATIO = 0.78;    // muchas minis
-  const COMET_MAX = 4;             // cometas simultaneos max
-  const COMET_SPAWN_CHANCE = 0.020; // probabilidad por frame (ajusta)
-  const SPEED = 0.45;              // sensacion "avanzando"
-  const TWINKLE = 0.018;
+  const layers = [
+    { count: 280, speed: 0.18, sizeMin: 0.3, sizeMax: 1.2, tw: 0.010 },
+    { count: 180, speed: 0.35, sizeMin: 0.5, sizeMax: 1.6, tw: 0.014 },
+    { count: 80,  speed: 0.65, sizeMin: 0.8, sizeMax: 2.1, tw: 0.018 }
+  ];
 
-  let mouseX = 0.5, mouseY = 0.5;
-
-  const stars = [];
-  const comets = [];
+  let stars = [];
 
   function resize() {
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    w = canvas.clientWidth = window.innerWidth;
-    h = canvas.clientHeight = window.innerHeight;
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = Math.floor(window.innerWidth * dpr);
+    h = Math.floor(window.innerHeight * dpr);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    initStars(true);
   }
 
   function rand(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
-  function makeStar() {
-    const isTiny = Math.random() < STAR_TINY_RATIO;
-    const size = isTiny ? rand(0.35, 1.0) : rand(1.0, 2.2);
-    const depth = rand(0.15, 1.0); // parallax + velocidad
-    return {
-      x: rand(0, w),
-      y: rand(0, h),
-      r: size,
-      z: depth,
-      a: rand(0.25, 0.9),
-      tw: rand(0.6, 1.4),
-      ph: rand(0, Math.PI * 2),
-    };
-  }
-
-  function initStars() {
-    stars.length = 0;
-    for (let i = 0; i < STAR_COUNT; i++) stars.push(makeStar());
-  }
-
-  function spawnComet() {
-    // Sale desde varias partes (arriba/izq/der) y cruza natural
-    const edge = Math.floor(rand(0, 3));
-    let x, y;
-
-    if (edge === 0) { // arriba
-      x = rand(-w * 0.2, w * 1.2);
-      y = rand(-120, -20);
-    } else if (edge === 1) { // izquierda
-      x = rand(-120, -20);
-      y = rand(0, h * 0.9);
-    } else { // derecha
-      x = rand(w + 20, w + 120);
-      y = rand(0, h * 0.85);
-    }
-
-    // Direccion hacia abajo-derecha pero variable
-    const angleBase = rand(Math.PI * 0.20, Math.PI * 0.52);
-    const angle = edge === 2 ? Math.PI - angleBase : angleBase;
-
-    const sp = rand(8.0, 13.5);
-    const vx = Math.cos(angle) * sp;
-    const vy = Math.sin(angle) * sp;
-
-    comets.push({
-      x, y, vx, vy,
-      life: 0,
-      maxLife: rand(45, 90),
-      width: rand(1.2, 2.4),
-      len: rand(140, 240),
-      glow: rand(0.22, 0.36),
+  function initStars(resetAll) {
+    const newStars = [];
+    layers.forEach((layer, li) => {
+      for (let i = 0; i < layer.count; i++) {
+        newStars.push({
+          layer: li,
+          x: resetAll ? rand(0, w) : rand(0, w),
+          y: resetAll ? rand(0, h) : rand(0, h),
+          r: rand(layer.sizeMin, layer.sizeMax) * dpr,
+          a: rand(0.35, 1),
+          tw: rand(0, Math.PI * 2),
+        });
+      }
     });
+    stars = newStars;
   }
 
-  function drawStar(s) {
-    // parallax con mouse
-    const px = (mouseX - 0.5) * 42 * s.z;
-    const py = (mouseY - 0.5) * 28 * s.z;
-
-    // twinkle
-    s.ph += TWINKLE * s.tw;
-    const tw = (Math.sin(s.ph) + 1) * 0.5; // 0..1
-    const alpha = clamp(s.a + tw * 0.25, 0.05, 1);
-
+  function drawStar(x, y, r, alpha) {
     ctx.beginPath();
-    ctx.arc(s.x + px, s.y + py, s.r, 0, Math.PI * 2);
+    ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.fill();
   }
 
-  function updateStars() {
-    for (const s of stars) {
-      // "avance infinito": se mueven hacia arriba ligeramente (como viajar)
-      s.y -= SPEED * (0.6 + s.z * 1.4);
-      s.x -= SPEED * (0.08 + s.z * 0.18);
-
-      if (s.y < -10) { s.y = h + rand(0, 40); s.x = rand(0, w); }
-      if (s.x < -20) { s.x = w + rand(0, 40); s.y = rand(0, h); }
-    }
-  }
-
-  function drawComet(c) {
-    // cabeza
-    ctx.save();
-    ctx.globalAlpha = 1;
-
-    // Cola (linea con gradiente)
-    const tx = c.x - c.vx * (c.len / 12);
-    const ty = c.y - c.vy * (c.len / 12);
-
-    const grad = ctx.createLinearGradient(c.x, c.y, tx, ty);
-    grad.addColorStop(0, `rgba(255,255,255,${0.92})`);
-    grad.addColorStop(0.25, `rgba(190,230,255,${0.55})`);
-    grad.addColorStop(1, `rgba(255,255,255,0)`);
-
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = c.width;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(c.x, c.y);
-    ctx.lineTo(tx, ty);
-    ctx.stroke();
-
-    // brillo cabeza
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = `rgba(255,255,255,${0.9})`;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // glow
-    ctx.globalAlpha = c.glow;
-    ctx.fillStyle = `rgba(120,220,255,1)`;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  function updateComets() {
-    for (let i = comets.length - 1; i >= 0; i--) {
-      const c = comets[i];
-      c.x += c.vx;
-      c.y += c.vy;
-      c.life += 1;
-
-      if (c.life > c.maxLife || c.x < -300 || c.x > w + 300 || c.y > h + 300) {
-        comets.splice(i, 1);
-      }
-    }
-
-    // Spawn controlado (no siempre igual)
-    if (comets.length < COMET_MAX && Math.random() < COMET_SPAWN_CHANCE) {
-      spawnComet();
-    }
-  }
-
-  function frame() {
+  function tick(t) {
     ctx.clearRect(0, 0, w, h);
 
-    // estrellas
-    updateStars();
-    for (const s of stars) drawStar(s);
+    // movimiento "infinito" diagonal muy sutil
+    const dxBase = 0.12 * dpr;
+    const dyBase = 0.18 * dpr;
 
-    // cometas
-    updateComets();
-    for (const c of comets) drawComet(c);
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      const layer = layers[s.layer];
 
-    requestAnimationFrame(frame);
+      // twinkle (brillo)
+      s.tw += layer.tw;
+      const twinkle = 0.28 + 0.72 * (0.5 + 0.5 * Math.sin(s.tw));
+
+      const alpha = Math.min(1, Math.max(0.08, s.a * twinkle));
+
+      drawStar(s.x, s.y, s.r, alpha);
+
+      // parallax drift
+      s.x -= dxBase * layer.speed;
+      s.y += dyBase * layer.speed;
+
+      // wrap para infinito
+      if (s.x < -10) s.x = w + 10;
+      if (s.y > h + 10) s.y = -10;
+    }
+
+    requestAnimationFrame(tick);
   }
 
-  function onMove(e){
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) / w;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) / h;
-    mouseX = clamp(x, 0, 1);
-    mouseY = clamp(y, 0, 1);
-  }
-
-  window.addEventListener("resize", () => {
-    resize();
-    initStars();
-  });
-
-  window.addEventListener("mousemove", onMove, { passive: true });
-  window.addEventListener("touchmove", onMove, { passive: true });
-
+  window.addEventListener("resize", resize);
   resize();
-  initStars();
-  frame();
-
-  // Expose for debugging if needed
-  window.__CHOKXEN_SPACE__ = { stars, comets };
+  requestAnimationFrame(tick);
 })();
